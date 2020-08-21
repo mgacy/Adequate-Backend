@@ -1,0 +1,8 @@
+{
+    "AppSyncApiName": "adequate",
+    "DynamoDBBillingMode": "PROVISIONED",
+    "DynamoDBModelTableReadIOPS": 5,
+    "DynamoDBModelTableWriteIOPS": 5,
+    "DynamoDBEnablePointInTimeRecovery": "true",
+    "DynamoDBEnableServerSideEncryption": "false"
+}

@@ -1,0 +1,166 @@
+# Deal
+type Deal @model
+    @key(name: "byYearMonthDate", fields: ["dealYear", "monthDay"], queryField: "dealsForPeriod")
+    @auth(rules: [
+      { allow: private, provider: iam },
+      { allow: public, operations: [ read ], provider: iam } 
+    ])
+{
+    id: ID!
+    dealID: ID
+    dealYear: String!
+    monthDay: String!
+    title: String!
+    features: String!
+    specifications: String!
+    url: AWSURL!
+    # Both `createdAt` and `updatedAt` are supposed to be automatic now, but if we do not list it explicitly,
+    # we cannot change it manually (to make it match `topic.createdAt`, for instance)
+    # TODO: use `startDate` instead of / in addition to `createdAt`?
+    createdAt: AWSDateTime!
+    endDate: AWSDateTime
+    soldOutAt: AWSDateTime
+    items: [Item!]!
+    modelNumbers: [String!]
+    photos: [AWSURL!]!
+    story: Story
+    topic: Topic
+    theme: Theme!
+    purchaseQuantity: PurchaseQuantity
+    # TODO: should we require `launches` and make lambda add it if meh.com response doesn't have it?
+    # TODO: do we need to make `Launch` nullable so we can overwrite current deal w/o `launches` with a new deal that also lacks them?
+    launches: [Launch!]
+    launchStatus: LaunchStatus!
+}
+
+type Item {
+    id: ID!
+    attributes: [ItemAttribute]!
+    condition: String!
+    # price: Int!
+    price: Float!
+    photo: AWSURL!
+}
+
+type ItemAttribute {
+    key: String!
+    value: String!
+}
+
+type Launch {
+    soldOutAt: AWSDateTime
+}
+
+type PurchaseQuantity {
+    maximumLimit: Int!
+    minimumLimit: Int!
+}
+
+type Story {
+    title: String!
+    body: String!
+}
+
+type Theme {
+    accentColor: String!
+    backgroundColor: String!
+    backgroundImage: AWSURL
+    foreground: ThemeForeground!
+}
+
+enum ThemeForeground {
+    dark
+    light
+}
+
+type Topic {
+    id: ID!
+    commentCount: Int!
+    createdAt: AWSDateTime!
+    replyCount: Int!
+    url: AWSURL!
+    voteCount: Int!
+}
+
+enum LaunchStatus {
+    launch
+    launchSoldOut
+    relaunch
+    relaunchSoldOut
+    reserve
+    soldOut
+    expired
+}
+
+# Custom Mutation and associated types
+input CreateDealInput {
+  id: ID
+  dealID: ID
+  # dealYear: String!
+  # monthDay: String!
+  title: String!
+  features: String!
+  specifications: String!
+  url: AWSURL!
+  createdAt: AWSDateTime
+  endDate: AWSDateTime
+  soldOutAt: AWSDateTime
+  items: [ItemInput!]!
+  modelNumbers: [String!]
+  photos: [AWSURL!]!
+  story: StoryInput
+  topic: TopicInput
+  theme: ThemeInput!
+  purchaseQuantity: PurchaseQuantityInput
+  launches: [LaunchInput!]
+  launchStatus: LaunchStatus!
+  _version: Int
+}
+
+# TODO: add `UpdateDealInput` w/o `dealYear` and `monthDay` fields? 
+
+input ItemInput {
+  id: ID!
+  attributes: [ItemAttributeInput]!
+  condition: String!  
+  # price: Int!
+  price: Float!
+  photo: AWSURL!
+}
+
+input ItemAttributeInput {
+  key: String!
+  value: String!
+}
+
+input StoryInput {
+  title: String!
+  body: String!
+}
+
+input TopicInput {
+  id: ID!
+  commentCount: Int!
+  createdAt: AWSDateTime!
+  replyCount: Int!
+  url: AWSURL!
+  voteCount: Int!
+}
+
+input ThemeInput {
+  accentColor: String!
+  backgroundColor: String!
+  backgroundImage: AWSURL
+  foreground: ThemeForeground!
+}
+
+input PurchaseQuantityInput {
+  maximumLimit: Int!
+  minimumLimit: Int!
+}
+
+input LaunchInput {
+  soldOutAt: AWSDateTime
+}
+
+# TODO: custom queries

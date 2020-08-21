@@ -1,0 +1,172 @@
+# this is an auto generated file. This will be overwritten
+subscription OnCreateDeal {
+  onCreateDeal {
+    id
+    dealID
+    dealYear
+    monthDay
+    title
+    features
+    specifications
+    url
+    createdAt
+    endDate
+    soldOutAt
+    items {
+      id
+      attributes {
+        key
+        value
+      }
+      condition
+      price
+      photo
+    }
+    modelNumbers
+    photos
+    story {
+      title
+      body
+    }
+    topic {
+      id
+      commentCount
+      createdAt
+      replyCount
+      url
+      voteCount
+    }
+    theme {
+      accentColor
+      backgroundColor
+      backgroundImage
+      foreground
+    }
+    purchaseQuantity {
+      maximumLimit
+      minimumLimit
+    }
+    launches {
+      soldOutAt
+    }
+    launchStatus
+    _version
+    _deleted
+    _lastChangedAt
+    updatedAt
+  }
+}
+subscription OnUpdateDeal {
+  onUpdateDeal {
+    id
+    dealID
+    dealYear
+    monthDay
+    title
+    features
+    specifications
+    url
+    createdAt
+    endDate
+    soldOutAt
+    items {
+      id
+      attributes {
+        key
+        value
+      }
+      condition
+      price
+      photo
+    }
+    modelNumbers
+    photos
+    story {
+      title
+      body
+    }
+    topic {
+      id
+      commentCount
+      createdAt
+      replyCount
+      url
+      voteCount
+    }
+    theme {
+      accentColor
+      backgroundColor
+      backgroundImage
+      foreground
+    }
+    purchaseQuantity {
+      maximumLimit
+      minimumLimit
+    }
+    launches {
+      soldOutAt
+    }
+    launchStatus
+    _version
+    _deleted
+    _lastChangedAt
+    updatedAt
+  }
+}
+subscription OnDeleteDeal {
+  onDeleteDeal {
+    id
+    dealID
+    dealYear
+    monthDay
+    title
+    features
+    specifications
+    url
+    createdAt
+    endDate
+    soldOutAt
+    items {
+      id
+      attributes {
+        key
+        value
+      }
+      condition
+      price
+      photo
+    }
+    modelNumbers
+    photos
+    story {
+      title
+      body
+    }
+    topic {
+      id
+      commentCount
+      createdAt
+      replyCount
+      url
+      voteCount
+    }
+    theme {
+      accentColor
+      backgroundColor
+      backgroundImage
+      foreground
+    }
+    purchaseQuantity {
+      maximumLimit
+      minimumLimit
+    }
+    launches {
+      soldOutAt
+    }
+    launchStatus
+    _version
+    _deleted
+    _lastChangedAt
+    updatedAt
+  }
+}

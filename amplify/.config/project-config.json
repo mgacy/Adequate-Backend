@@ -1,0 +1,8 @@
+{
+    "providers": [
+        "awscloudformation"
+    ],
+    "projectName": "Adequate-Backend",
+    "version": "3.0",
+    "frontend": "ios"
+}

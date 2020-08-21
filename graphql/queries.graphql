@@ -1,0 +1,257 @@
+# this is an auto generated file. This will be overwritten
+query SyncDeals(
+  $filter: ModelDealFilterInput
+  $limit: Int
+  $nextToken: String
+  $lastSync: AWSTimestamp
+) {
+  syncDeals(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    lastSync: $lastSync
+  ) {
+    items {
+      id
+      dealID
+      dealYear
+      monthDay
+      title
+      features
+      specifications
+      url
+      createdAt
+      endDate
+      soldOutAt
+      items {
+        id
+        condition
+        price
+        photo
+      }
+      modelNumbers
+      photos
+      story {
+        title
+        body
+      }
+      topic {
+        id
+        commentCount
+        createdAt
+        replyCount
+        url
+        voteCount
+      }
+      theme {
+        accentColor
+        backgroundColor
+        backgroundImage
+        foreground
+      }
+      purchaseQuantity {
+        maximumLimit
+        minimumLimit
+      }
+      launches {
+        soldOutAt
+      }
+      launchStatus
+      _version
+      _deleted
+      _lastChangedAt
+      updatedAt
+    }
+    nextToken
+    startedAt
+  }
+}
+query GetDeal($id: ID!) {
+  getDeal(id: $id) {
+    id
+    dealID
+    dealYear
+    monthDay
+    title
+    features
+    specifications
+    url
+    createdAt
+    endDate
+    soldOutAt
+    items {
+      id
+      attributes {
+        key
+        value
+      }
+      condition
+      price
+      photo
+    }
+    modelNumbers
+    photos
+    story {
+      title
+      body
+    }
+    topic {
+      id
+      commentCount
+      createdAt
+      replyCount
+      url
+      voteCount
+    }
+    theme {
+      accentColor
+      backgroundColor
+      backgroundImage
+      foreground
+    }
+    purchaseQuantity {
+      maximumLimit
+      minimumLimit
+    }
+    launches {
+      soldOutAt
+    }
+    launchStatus
+    _version
+    _deleted
+    _lastChangedAt
+    updatedAt
+  }
+}
+query ListDeals(
+  $filter: ModelDealFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listDeals(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      dealID
+      dealYear
+      monthDay
+      title
+      features
+      specifications
+      url
+      createdAt
+      endDate
+      soldOutAt
+      items {
+        id
+        condition
+        price
+        photo
+      }
+      modelNumbers
+      photos
+      story {
+        title
+        body
+      }
+      topic {
+        id
+        commentCount
+        createdAt
+        replyCount
+        url
+        voteCount
+      }
+      theme {
+        accentColor
+        backgroundColor
+        backgroundImage
+        foreground
+      }
+      purchaseQuantity {
+        maximumLimit
+        minimumLimit
+      }
+      launches {
+        soldOutAt
+      }
+      launchStatus
+      _version
+      _deleted
+      _lastChangedAt
+      updatedAt
+    }
+    nextToken
+    startedAt
+  }
+}
+query DealsForPeriod(
+  $dealYear: String
+  $monthDay: ModelStringKeyConditionInput
+  $sortDirection: ModelSortDirection
+  $filter: ModelDealFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  dealsForPeriod(
+    dealYear: $dealYear
+    monthDay: $monthDay
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      dealID
+      dealYear
+      monthDay
+      title
+      features
+      specifications
+      url
+      createdAt
+      endDate
+      soldOutAt
+      items {
+        id
+        condition
+        price
+        photo
+      }
+      modelNumbers
+      photos
+      story {
+        title
+        body
+      }
+      topic {
+        id
+        commentCount
+        createdAt
+        replyCount
+        url
+        voteCount
+      }
+      theme {
+        accentColor
+        backgroundColor
+        backgroundImage
+        foreground
+      }
+      purchaseQuantity {
+        maximumLimit
+        minimumLimit
+      }
+      launches {
+        soldOutAt
+      }
+      launchStatus
+      _version
+      _deleted
+      _lastChangedAt
+      updatedAt
+    }
+    nextToken
+    startedAt
+  }
+}

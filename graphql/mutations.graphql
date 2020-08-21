@@ -1,0 +1,181 @@
+# this is an auto generated file. This will be overwritten
+mutation CreateDeal(
+  $input: CreateDealInput!
+  $condition: ModelDealConditionInput
+) {
+  createDeal(input: $input, condition: $condition) {
+    id
+    dealID
+    dealYear
+    monthDay
+    title
+    features
+    specifications
+    url
+    createdAt
+    endDate
+    soldOutAt
+    items {
+      id
+      attributes {
+        key
+        value
+      }
+      condition
+      price
+      photo
+    }
+    modelNumbers
+    photos
+    story {
+      title
+      body
+    }
+    topic {
+      id
+      commentCount
+      createdAt
+      replyCount
+      url
+      voteCount
+    }
+    theme {
+      accentColor
+      backgroundColor
+      backgroundImage
+      foreground
+    }
+    purchaseQuantity {
+      maximumLimit
+      minimumLimit
+    }
+    launches {
+      soldOutAt
+    }
+    launchStatus
+    _version
+    _deleted
+    _lastChangedAt
+    updatedAt
+  }
+}
+mutation UpdateDeal(
+  $input: UpdateDealInput!
+  $condition: ModelDealConditionInput
+) {
+  updateDeal(input: $input, condition: $condition) {
+    id
+    dealID
+    dealYear
+    monthDay
+    title
+    features
+    specifications
+    url
+    createdAt
+    endDate
+    soldOutAt
+    items {
+      id
+      attributes {
+        key
+        value
+      }
+      condition
+      price
+      photo
+    }
+    modelNumbers
+    photos
+    story {
+      title
+      body
+    }
+    topic {
+      id
+      commentCount
+      createdAt
+      replyCount
+      url
+      voteCount
+    }
+    theme {
+      accentColor
+      backgroundColor
+      backgroundImage
+      foreground
+    }
+    purchaseQuantity {
+      maximumLimit
+      minimumLimit
+    }
+    launches {
+      soldOutAt
+    }
+    launchStatus
+    _version
+    _deleted
+    _lastChangedAt
+    updatedAt
+  }
+}
+mutation DeleteDeal(
+  $input: DeleteDealInput!
+  $condition: ModelDealConditionInput
+) {
+  deleteDeal(input: $input, condition: $condition) {
+    id
+    dealID
+    dealYear
+    monthDay
+    title
+    features
+    specifications
+    url
+    createdAt
+    endDate
+    soldOutAt
+    items {
+      id
+      attributes {
+        key
+        value
+      }
+      condition
+      price
+      photo
+    }
+    modelNumbers
+    photos
+    story {
+      title
+      body
+    }
+    topic {
+      id
+      commentCount
+      createdAt
+      replyCount
+      url
+      voteCount
+    }
+    theme {
+      accentColor
+      backgroundColor
+      backgroundImage
+      foreground
+    }
+    purchaseQuantity {
+      maximumLimit
+      minimumLimit
+    }
+    launches {
+      soldOutAt
+    }
+    launchStatus
+    _version
+    _deleted
+    _lastChangedAt
+    updatedAt
+  }
+}
