@@ -41,7 +41,6 @@ deploy: ##=> Deploy services
 			--s3-bucket $(DEPLOYMENT_BUCKET_NAME) \
 			--region $(AWS_REGION) \
 			--stack-name $(STACK_NAME) \
-			--confirm_changeset true \
 			--capabilities CAPABILITY_IAM \
 			--parameter-overrides \
 				BaseName=$(BASE_NAME) \
