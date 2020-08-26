@@ -77,6 +77,11 @@ class GraphQLResponse(object):
         """Raises AppSyncException if any errors occurred.
 
         Inspired by requests.Response.raise_for_status()
+
+        Raises
+        ------
+        AppSyncException
+            Response contained errors
         """
         # TODO: improve error descriptions
         if self.errors:
