@@ -25,4 +25,3 @@ export MEH_API_KEY=$(aws kms encrypt \
 
 # Deploy
 make deploy
-# make build

@@ -4,17 +4,15 @@ MAKEFLAGS += --no-builtin-rules
 
 # Variables
 BASE_NAME ?= adequate-sam
-AWS_BRANCH ?= "dev"
-# AWS_REGION ?= "UNDEFINED"
 GRAPHQL_API_ID ?= "UNDEFINED"
 GRAPHQL_ENDPOINT ?= "UNDEFINED"
 KMS_KEY_ID ?= "UNDEFINED"
 MEH_API_KEY ?= "UNDEFINED"
 APNS_CATEGORY ?= "UNDEFINED"
 
-# AMPLIFY_SETTINGS = amplify/\#current-cloud-backend/amplify-meta.json
-# AWS_REGION := $(shell jq -r '.providers.awscloudformation.Region' ${AMPLIFY_SETTINGS})
-# AWS_BRANCH := $(shell jq -r '.envName' amplify/.config/local-env-info.json)
+AMPLIFY_SETTINGS = amplify/\#current-cloud-backend/amplify-meta.json
+AWS_REGION := $(shell jq -r '.providers.awscloudformation.Region' ${AMPLIFY_SETTINGS})
+AWS_BRANCH := $(shell jq -r '.envName' amplify/.config/local-env-info.json)
 
 ifndef STACK_NAME
 STACK_NAME = $(BASE_NAME)-$(AWS_BRANCH)
@@ -30,8 +28,8 @@ help:
 	@exit 0
 
 create-bucket: ##=> Create S3 bucket
-	$(info [*] Checking if S3 bucket exists s3://$(DEPLOYMENT_BUCKET_NAME)")
-	@aws s3api head-bucket --bucket $(DEPLOYMENT_BUCKET_NAME) || (echo "bucket does not exist at s3://$(DEPLOYMENT_BUCKET_NAME), creating it..." ; aws s3 mb s3://$(DEPLOYMENT_BUCKET_NAME) --region $(AWS_REGION))
+	$(info [*] Creating S3 bucket at s3://$(DEPLOYMENT_BUCKET_NAME)")
+	@aws s3 mb s3://$(DEPLOYMENT_BUCKET_NAME) --region $(AWS_REGION)
 
 deploy: ##=> Deploy services
 	$(info [*] Building and deploying adequate service...)
@@ -41,7 +39,6 @@ deploy: ##=> Deploy services
 			--s3-bucket $(DEPLOYMENT_BUCKET_NAME) \
 			--region $(AWS_REGION) \
 			--stack-name $(STACK_NAME) \
-			--confirm_changeset true \
 			--capabilities CAPABILITY_IAM \
 			--parameter-overrides \
 				BaseName=$(BASE_NAME) \
