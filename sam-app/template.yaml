@@ -1,0 +1,138 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Adequate Backend
+
+  Additional elements for Adequate Backend
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 5
+    Runtime: python3.8
+    MemorySize: 128
+
+Parameters:
+  BaseName:
+    Type: String
+    Description: App name; used as prefix for function names
+    Default: adequate-sam
+  Environment:
+    Type: String
+    Description: Environment to which resources will be deployed
+    AllowedValues:
+      - dev
+      - local
+      - stage
+      - prod
+      - master
+    Default: local
+  FeatureBranch:
+    Type: String
+    Description: Name of the feature branch if this is not a build from the master code branch
+    Default: ''
+  KmsKeyId:
+    Type: String
+    Description: ARN for KMS key used to encrypt meh.com API key
+  MehApiKey:
+    Type: String
+    Description: Encrypted meh.com API key
+  ApnsCategory:
+    Type: String
+    Description: Category for APNs notifications
+    Default: MGDailyDealCategory
+  GraphQlId:
+    Type: String
+    Description: AppSync API ID associated with this project
+  GraphQlEndpoint:
+    Type: String
+    Description: AppSync Endpoint associated with this project
+
+Conditions:
+  UseApnsSandbox: !Not [!Equals [ !Ref Environment, master ]]
+
+Resources:
+
+  DealUpdateTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      # If you specify a `TopicName`, you can't perform updates that require replacement of this resource
+      DisplayName: NewDealTopic
+
+  DealCheckFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Check for new or updated deals on meh.com and update AppSync API
+      CodeUri: deal_check/
+      Handler: app.lambda_handler
+      FunctionName: !Sub '${BaseName}-dealCheck-${Environment}'
+      Policies:
+        - KMSDecryptPolicy:
+            KeyId: !Ref KmsKeyId
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt DealUpdateTopic.TopicName
+        - Version: '2012-10-17'
+          Statement:
+            Effect: Allow
+            Action:
+                - appsync:Create*
+                - appsync:StartSchemaCreation
+                - appsync:GraphQL
+                - appsync:Get*
+                - appsync:List*
+                - appsync:Update*
+            Resource: !Sub 'arn:aws:appsync:${AWS::Region}:${AWS::AccountId}:apis/${GraphQlId}/*'
+      Environment:
+        Variables:
+          MEH_API_KEY: !Ref MehApiKey
+          API_ENDPOINT: !Ref GraphQlEndpoint
+          TOPIC_ARN: !Ref DealUpdateTopic
+      Events:
+        Schedule1:
+          Type: Schedule
+          Properties:
+            Description: Schedule rule for deal_check Lambda 
+            Schedule: cron(1/10 * * * ? *)
+
+  DealNotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: NewDealAPNs
+
+  NotificationFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      Description: Send push notifications for new / updated deals via APNS
+      CodeUri: push_notification/
+      Handler: app.lambda_handler
+      FunctionName: !Sub '${BaseName}-notification-${Environment}'
+      Policies:
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt DealNotificationTopic.TopicName
+      Environment:
+        Variables:
+          TOPIC_ARN: !Ref DealNotificationTopic
+          APNS_SERVER: !If [UseApnsSandbox, dev, prod]
+          APNS_CATEGORY: !Ref ApnsCategory
+      Events:
+        SNSEventSource:
+          Type: SNS # More info about SNS Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#sns
+          Properties:
+            Topic: !Ref DealUpdateTopic
+
+Outputs:
+  DealUpdateTopicOutput:
+    Description: Lambda communication SNS Topic ARN
+    Value: !Ref DealUpdateTopic
+    
+  DealNotificationTopicOutput:
+    Description: Push notification SNS Topic ARN
+    Value: !Ref DealNotificationTopic
+  
+  DealCheckFunctionOutput:
+    Description: DealCheck Lambda Function ARN
+    Value: !GetAtt DealCheckFunction.Arn
+
+  NotificationFunctionOutput:
+    Description: Notification Lambda Function ARN
+    Value: !GetAtt NotificationFunction.Arn
