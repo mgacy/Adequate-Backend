@@ -82,6 +82,7 @@ type Topic {
     voteCount: Int!
 }
 
+# TODO: add `mehrathon` status
 enum LaunchStatus {
     launch
     launchSoldOut
