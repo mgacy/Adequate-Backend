@@ -13,6 +13,8 @@ APNS_CATEGORY ?= "UNDEFINED"
 AMPLIFY_SETTINGS = amplify/\#current-cloud-backend/amplify-meta.json
 AWS_REGION := $(shell jq -r '.providers.awscloudformation.Region' ${AMPLIFY_SETTINGS})
 AWS_BRANCH := $(shell jq -r '.envName' amplify/.config/local-env-info.json)
+GRAPHQL_API_ID := $(shell jq -r '.api[(.api | keys)[0]].output.GraphQLAPIIdOutput' ${AMPLIFY_SETTINGS})
+GRAPHQL_ENDPOINT := $(shell jq -r '.api[(.api | keys)[0]].output.GraphQLAPIEndpointOutput' ${AMPLIFY_SETTINGS})
 
 ifndef STACK_NAME
 STACK_NAME = $(BASE_NAME)-$(AWS_BRANCH)
@@ -49,7 +51,11 @@ deploy: ##=> Deploy services
 				GraphQlId=$(GRAPHQL_API_ID) \
 				GraphQlEndpoint=$(GRAPHQL_ENDPOINT)
 
-.PHONY: help create-bucket deploy
+configure-gsi:
+	$(info [*] Configuring GSI for Query.dealHistory in Table 'Deal-$(GRAPHQL_API_ID)-$(AWS_BRANCH)')
+	python tools/configure_index.py Deal-$(GRAPHQL_API_ID)-$(AWS_BRANCH)
+
+.PHONY: help create-bucket deploy configure-gsi
 
 #############
 #  Helpers  #
@@ -84,6 +90,6 @@ define HELP_MESSAGE
 	...::: Deploy all SAM based services :::...
 	$ make deploy
 
-	...::: Export parameter and its value to System Manager Parameter Store :::...
-	$ make export.parameter NAME="/env/service/amplify/api/id" VALUE="xzklsdio234"
+	...::: Configure GSI for Query.dealHistory :::...
+	$ make configure-gsi
 endef
