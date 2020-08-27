@@ -36,7 +36,7 @@ def create_deal_history_query_input(index_name, start_date, end_date):
     start_date : datetime
         Beginning to date range to query
     end_date : datetime
-        End of date range to queryy
+        End of date range to query
 
     Returns
     -------
