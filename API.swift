@@ -1308,6 +1308,389 @@ public struct DeleteDealInput: GraphQLMapConvertible {
   }
 }
 
+public struct DealHistoryFilterInput: GraphQLMapConvertible {
+  public var graphQLMap: GraphQLMap
+
+  public init(id: CustomIDFilterInput? = nil, dealId: CustomIDFilterInput? = nil, dealYear: CustomStringFilterInput? = nil, monthDay: CustomStringFilterInput? = nil, title: CustomStringFilterInput? = nil, features: CustomStringFilterInput? = nil, specifications: CustomStringFilterInput? = nil, url: CustomStringFilterInput? = nil, createdAt: CustomStringFilterInput? = nil, endDate: CustomStringFilterInput? = nil, soldOutAt: CustomStringFilterInput? = nil, modelNumbers: CustomStringFilterInput? = nil, photos: CustomStringFilterInput? = nil, launchStatus: CustomLaunchStatusInput? = nil, and: [DealHistoryFilterInput?]? = nil, or: [DealHistoryFilterInput?]? = nil, not: DealHistoryFilterInput? = nil) {
+    graphQLMap = ["id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "modelNumbers": modelNumbers, "photos": photos, "launchStatus": launchStatus, "and": and, "or": or, "not": not]
+  }
+
+  public var id: CustomIDFilterInput? {
+    get {
+      return graphQLMap["id"] as! CustomIDFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "id")
+    }
+  }
+
+  public var dealId: CustomIDFilterInput? {
+    get {
+      return graphQLMap["dealID"] as! CustomIDFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "dealID")
+    }
+  }
+
+  public var dealYear: CustomStringFilterInput? {
+    get {
+      return graphQLMap["dealYear"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "dealYear")
+    }
+  }
+
+  public var monthDay: CustomStringFilterInput? {
+    get {
+      return graphQLMap["monthDay"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "monthDay")
+    }
+  }
+
+  public var title: CustomStringFilterInput? {
+    get {
+      return graphQLMap["title"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "title")
+    }
+  }
+
+  public var features: CustomStringFilterInput? {
+    get {
+      return graphQLMap["features"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "features")
+    }
+  }
+
+  public var specifications: CustomStringFilterInput? {
+    get {
+      return graphQLMap["specifications"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "specifications")
+    }
+  }
+
+  public var url: CustomStringFilterInput? {
+    get {
+      return graphQLMap["url"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "url")
+    }
+  }
+
+  public var createdAt: CustomStringFilterInput? {
+    get {
+      return graphQLMap["createdAt"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "createdAt")
+    }
+  }
+
+  public var endDate: CustomStringFilterInput? {
+    get {
+      return graphQLMap["endDate"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "endDate")
+    }
+  }
+
+  public var soldOutAt: CustomStringFilterInput? {
+    get {
+      return graphQLMap["soldOutAt"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "soldOutAt")
+    }
+  }
+
+  public var modelNumbers: CustomStringFilterInput? {
+    get {
+      return graphQLMap["modelNumbers"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "modelNumbers")
+    }
+  }
+
+  public var photos: CustomStringFilterInput? {
+    get {
+      return graphQLMap["photos"] as! CustomStringFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "photos")
+    }
+  }
+
+  public var launchStatus: CustomLaunchStatusInput? {
+    get {
+      return graphQLMap["launchStatus"] as! CustomLaunchStatusInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "launchStatus")
+    }
+  }
+
+  public var and: [DealHistoryFilterInput?]? {
+    get {
+      return graphQLMap["and"] as! [DealHistoryFilterInput?]?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "and")
+    }
+  }
+
+  public var or: [DealHistoryFilterInput?]? {
+    get {
+      return graphQLMap["or"] as! [DealHistoryFilterInput?]?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "or")
+    }
+  }
+
+  public var not: DealHistoryFilterInput? {
+    get {
+      return graphQLMap["not"] as! DealHistoryFilterInput?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "not")
+    }
+  }
+}
+
+public struct CustomIDFilterInput: GraphQLMapConvertible {
+  public var graphQLMap: GraphQLMap
+
+  public init(ne: GraphQLID? = nil, eq: GraphQLID? = nil, le: GraphQLID? = nil, lt: GraphQLID? = nil, ge: GraphQLID? = nil, gt: GraphQLID? = nil, contains: GraphQLID? = nil, notContains: GraphQLID? = nil, between: [GraphQLID?]? = nil, beginsWith: GraphQLID? = nil) {
+    graphQLMap = ["ne": ne, "eq": eq, "le": le, "lt": lt, "ge": ge, "gt": gt, "contains": contains, "notContains": notContains, "between": between, "beginsWith": beginsWith]
+  }
+
+  public var ne: GraphQLID? {
+    get {
+      return graphQLMap["ne"] as! GraphQLID?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "ne")
+    }
+  }
+
+  public var eq: GraphQLID? {
+    get {
+      return graphQLMap["eq"] as! GraphQLID?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "eq")
+    }
+  }
+
+  public var le: GraphQLID? {
+    get {
+      return graphQLMap["le"] as! GraphQLID?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "le")
+    }
+  }
+
+  public var lt: GraphQLID? {
+    get {
+      return graphQLMap["lt"] as! GraphQLID?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "lt")
+    }
+  }
+
+  public var ge: GraphQLID? {
+    get {
+      return graphQLMap["ge"] as! GraphQLID?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "ge")
+    }
+  }
+
+  public var gt: GraphQLID? {
+    get {
+      return graphQLMap["gt"] as! GraphQLID?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "gt")
+    }
+  }
+
+  public var contains: GraphQLID? {
+    get {
+      return graphQLMap["contains"] as! GraphQLID?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "contains")
+    }
+  }
+
+  public var notContains: GraphQLID? {
+    get {
+      return graphQLMap["notContains"] as! GraphQLID?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "notContains")
+    }
+  }
+
+  public var between: [GraphQLID?]? {
+    get {
+      return graphQLMap["between"] as! [GraphQLID?]?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "between")
+    }
+  }
+
+  public var beginsWith: GraphQLID? {
+    get {
+      return graphQLMap["beginsWith"] as! GraphQLID?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "beginsWith")
+    }
+  }
+}
+
+public struct CustomStringFilterInput: GraphQLMapConvertible {
+  public var graphQLMap: GraphQLMap
+
+  public init(ne: String? = nil, eq: String? = nil, le: String? = nil, lt: String? = nil, ge: String? = nil, gt: String? = nil, contains: String? = nil, notContains: String? = nil, between: [String?]? = nil, beginsWith: String? = nil) {
+    graphQLMap = ["ne": ne, "eq": eq, "le": le, "lt": lt, "ge": ge, "gt": gt, "contains": contains, "notContains": notContains, "between": between, "beginsWith": beginsWith]
+  }
+
+  public var ne: String? {
+    get {
+      return graphQLMap["ne"] as! String?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "ne")
+    }
+  }
+
+  public var eq: String? {
+    get {
+      return graphQLMap["eq"] as! String?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "eq")
+    }
+  }
+
+  public var le: String? {
+    get {
+      return graphQLMap["le"] as! String?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "le")
+    }
+  }
+
+  public var lt: String? {
+    get {
+      return graphQLMap["lt"] as! String?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "lt")
+    }
+  }
+
+  public var ge: String? {
+    get {
+      return graphQLMap["ge"] as! String?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "ge")
+    }
+  }
+
+  public var gt: String? {
+    get {
+      return graphQLMap["gt"] as! String?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "gt")
+    }
+  }
+
+  public var contains: String? {
+    get {
+      return graphQLMap["contains"] as! String?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "contains")
+    }
+  }
+
+  public var notContains: String? {
+    get {
+      return graphQLMap["notContains"] as! String?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "notContains")
+    }
+  }
+
+  public var between: [String?]? {
+    get {
+      return graphQLMap["between"] as! [String?]?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "between")
+    }
+  }
+
+  public var beginsWith: String? {
+    get {
+      return graphQLMap["beginsWith"] as! String?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "beginsWith")
+    }
+  }
+}
+
+public struct CustomLaunchStatusInput: GraphQLMapConvertible {
+  public var graphQLMap: GraphQLMap
+
+  public init(eq: LaunchStatus? = nil, ne: LaunchStatus? = nil) {
+    graphQLMap = ["eq": eq, "ne": ne]
+  }
+
+  public var eq: LaunchStatus? {
+    get {
+      return graphQLMap["eq"] as! LaunchStatus?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "eq")
+    }
+  }
+
+  public var ne: LaunchStatus? {
+    get {
+      return graphQLMap["ne"] as! LaunchStatus?
+    }
+    set {
+      graphQLMap.updateValue(newValue, forKey: "ne")
+    }
+  }
+}
+
 public struct ModelDealFilterInput: GraphQLMapConvertible {
   public var graphQLMap: GraphQLMap
 
@@ -3726,6 +4109,350 @@ public final class DeleteDealMutation: GraphQLMutation {
           }
           set {
             snapshot.updateValue(newValue, forKey: "soldOutAt")
+          }
+        }
+      }
+    }
+  }
+}
+
+public final class DealHistoryQuery: GraphQLQuery {
+  public static let operationString =
+    "query DealHistory($filter: DealHistoryFilterInput, $limit: Int, $nextToken: String) {\n  dealHistory(filter: $filter, limit: $limit, nextToken: $nextToken) {\n    __typename\n    items {\n      __typename\n      id\n      title\n      createdAt\n      dealYear\n      monthDay\n      items {\n        __typename\n        id\n        condition\n        price\n        photo\n      }\n      photos\n      theme {\n        __typename\n        accentColor\n        backgroundColor\n        backgroundImage\n        foreground\n      }\n    }\n    nextToken\n    startedAt\n  }\n}"
+
+  public var filter: DealHistoryFilterInput?
+  public var limit: Int?
+  public var nextToken: String?
+
+  public init(filter: DealHistoryFilterInput? = nil, limit: Int? = nil, nextToken: String? = nil) {
+    self.filter = filter
+    self.limit = limit
+    self.nextToken = nextToken
+  }
+
+  public var variables: GraphQLMap? {
+    return ["filter": filter, "limit": limit, "nextToken": nextToken]
+  }
+
+  public struct Data: GraphQLSelectionSet {
+    public static let possibleTypes = ["Query"]
+
+    public static let selections: [GraphQLSelection] = [
+      GraphQLField("dealHistory", arguments: ["filter": GraphQLVariable("filter"), "limit": GraphQLVariable("limit"), "nextToken": GraphQLVariable("nextToken")], type: .object(DealHistory.selections)),
+    ]
+
+    public var snapshot: Snapshot
+
+    public init(snapshot: Snapshot) {
+      self.snapshot = snapshot
+    }
+
+    public init(dealHistory: DealHistory? = nil) {
+      self.init(snapshot: ["__typename": "Query", "dealHistory": dealHistory.flatMap { $0.snapshot }])
+    }
+
+    public var dealHistory: DealHistory? {
+      get {
+        return (snapshot["dealHistory"] as? Snapshot).flatMap { DealHistory(snapshot: $0) }
+      }
+      set {
+        snapshot.updateValue(newValue?.snapshot, forKey: "dealHistory")
+      }
+    }
+
+    public struct DealHistory: GraphQLSelectionSet {
+      public static let possibleTypes = ["DealHistoryConnection"]
+
+      public static let selections: [GraphQLSelection] = [
+        GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+        GraphQLField("items", type: .list(.object(Item.selections))),
+        GraphQLField("nextToken", type: .scalar(String.self)),
+        GraphQLField("startedAt", type: .scalar(Int.self)),
+      ]
+
+      public var snapshot: Snapshot
+
+      public init(snapshot: Snapshot) {
+        self.snapshot = snapshot
+      }
+
+      public init(items: [Item?]? = nil, nextToken: String? = nil, startedAt: Int? = nil) {
+        self.init(snapshot: ["__typename": "DealHistoryConnection", "items": items.flatMap { $0.map { $0.flatMap { $0.snapshot } } }, "nextToken": nextToken, "startedAt": startedAt])
+      }
+
+      public var __typename: String {
+        get {
+          return snapshot["__typename"]! as! String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "__typename")
+        }
+      }
+
+      public var items: [Item?]? {
+        get {
+          return (snapshot["items"] as? [Snapshot?]).flatMap { $0.map { $0.flatMap { Item(snapshot: $0) } } }
+        }
+        set {
+          snapshot.updateValue(newValue.flatMap { $0.map { $0.flatMap { $0.snapshot } } }, forKey: "items")
+        }
+      }
+
+      public var nextToken: String? {
+        get {
+          return snapshot["nextToken"] as? String
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "nextToken")
+        }
+      }
+
+      public var startedAt: Int? {
+        get {
+          return snapshot["startedAt"] as? Int
+        }
+        set {
+          snapshot.updateValue(newValue, forKey: "startedAt")
+        }
+      }
+
+      public struct Item: GraphQLSelectionSet {
+        public static let possibleTypes = ["DealHistoryResult"]
+
+        public static let selections: [GraphQLSelection] = [
+          GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+          GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
+          GraphQLField("title", type: .nonNull(.scalar(String.self))),
+          GraphQLField("createdAt", type: .nonNull(.scalar(String.self))),
+          GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
+          GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
+          GraphQLField("items", type: .nonNull(.list(.nonNull(.object(Item.selections))))),
+          GraphQLField("photos", type: .nonNull(.list(.nonNull(.scalar(String.self))))),
+          GraphQLField("theme", type: .nonNull(.object(Theme.selections))),
+        ]
+
+        public var snapshot: Snapshot
+
+        public init(snapshot: Snapshot) {
+          self.snapshot = snapshot
+        }
+
+        public init(id: GraphQLID, title: String, createdAt: String, dealYear: String, monthDay: String, items: [Item], photos: [String], theme: Theme) {
+          self.init(snapshot: ["__typename": "DealHistoryResult", "id": id, "title": title, "createdAt": createdAt, "dealYear": dealYear, "monthDay": monthDay, "items": items.map { $0.snapshot }, "photos": photos, "theme": theme.snapshot])
+        }
+
+        public var __typename: String {
+          get {
+            return snapshot["__typename"]! as! String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "__typename")
+          }
+        }
+
+        public var id: GraphQLID {
+          get {
+            return snapshot["id"]! as! GraphQLID
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "id")
+          }
+        }
+
+        public var title: String {
+          get {
+            return snapshot["title"]! as! String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "title")
+          }
+        }
+
+        public var createdAt: String {
+          get {
+            return snapshot["createdAt"]! as! String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "createdAt")
+          }
+        }
+
+        public var dealYear: String {
+          get {
+            return snapshot["dealYear"]! as! String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "dealYear")
+          }
+        }
+
+        public var monthDay: String {
+          get {
+            return snapshot["monthDay"]! as! String
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "monthDay")
+          }
+        }
+
+        public var items: [Item] {
+          get {
+            return (snapshot["items"] as! [Snapshot]).map { Item(snapshot: $0) }
+          }
+          set {
+            snapshot.updateValue(newValue.map { $0.snapshot }, forKey: "items")
+          }
+        }
+
+        public var photos: [String] {
+          get {
+            return snapshot["photos"]! as! [String]
+          }
+          set {
+            snapshot.updateValue(newValue, forKey: "photos")
+          }
+        }
+
+        public var theme: Theme {
+          get {
+            return Theme(snapshot: snapshot["theme"]! as! Snapshot)
+          }
+          set {
+            snapshot.updateValue(newValue.snapshot, forKey: "theme")
+          }
+        }
+
+        public struct Item: GraphQLSelectionSet {
+          public static let possibleTypes = ["Item"]
+
+          public static let selections: [GraphQLSelection] = [
+            GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
+            GraphQLField("condition", type: .nonNull(.scalar(String.self))),
+            GraphQLField("price", type: .nonNull(.scalar(Double.self))),
+            GraphQLField("photo", type: .nonNull(.scalar(String.self))),
+          ]
+
+          public var snapshot: Snapshot
+
+          public init(snapshot: Snapshot) {
+            self.snapshot = snapshot
+          }
+
+          public init(id: GraphQLID, condition: String, price: Double, photo: String) {
+            self.init(snapshot: ["__typename": "Item", "id": id, "condition": condition, "price": price, "photo": photo])
+          }
+
+          public var __typename: String {
+            get {
+              return snapshot["__typename"]! as! String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var id: GraphQLID {
+            get {
+              return snapshot["id"]! as! GraphQLID
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "id")
+            }
+          }
+
+          public var condition: String {
+            get {
+              return snapshot["condition"]! as! String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "condition")
+            }
+          }
+
+          public var price: Double {
+            get {
+              return snapshot["price"]! as! Double
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "price")
+            }
+          }
+
+          public var photo: String {
+            get {
+              return snapshot["photo"]! as! String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "photo")
+            }
+          }
+        }
+
+        public struct Theme: GraphQLSelectionSet {
+          public static let possibleTypes = ["Theme"]
+
+          public static let selections: [GraphQLSelection] = [
+            GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
+            GraphQLField("accentColor", type: .nonNull(.scalar(String.self))),
+            GraphQLField("backgroundColor", type: .nonNull(.scalar(String.self))),
+            GraphQLField("backgroundImage", type: .scalar(String.self)),
+            GraphQLField("foreground", type: .nonNull(.scalar(ThemeForeground.self))),
+          ]
+
+          public var snapshot: Snapshot
+
+          public init(snapshot: Snapshot) {
+            self.snapshot = snapshot
+          }
+
+          public init(accentColor: String, backgroundColor: String, backgroundImage: String? = nil, foreground: ThemeForeground) {
+            self.init(snapshot: ["__typename": "Theme", "accentColor": accentColor, "backgroundColor": backgroundColor, "backgroundImage": backgroundImage, "foreground": foreground])
+          }
+
+          public var __typename: String {
+            get {
+              return snapshot["__typename"]! as! String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "__typename")
+            }
+          }
+
+          public var accentColor: String {
+            get {
+              return snapshot["accentColor"]! as! String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "accentColor")
+            }
+          }
+
+          public var backgroundColor: String {
+            get {
+              return snapshot["backgroundColor"]! as! String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "backgroundColor")
+            }
+          }
+
+          public var backgroundImage: String? {
+            get {
+              return snapshot["backgroundImage"] as? String
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "backgroundImage")
+            }
+          }
+
+          public var foreground: ThemeForeground {
+            get {
+              return snapshot["foreground"]! as! ThemeForeground
+            }
+            set {
+              snapshot.updateValue(newValue, forKey: "foreground")
+            }
           }
         }
       }
