@@ -244,10 +244,8 @@ input DealHistoryFilterInput {
 }
 
 # Queries
+# Add `sortDirection: CustomSortDirection`?
 type Query {
-  # Add `sortDirection: CustomSortDirection`?
   dealHistory(filter: DealHistoryFilterInput, limit: Int, nextToken: String): DealHistoryConnection
-    @auth(rules: [
-      { allow: public, provider: iam } 
-    ])
+    @auth(rules: [ { allow: public, provider: iam } ])
 }
