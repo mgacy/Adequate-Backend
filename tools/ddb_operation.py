@@ -291,6 +291,171 @@ def execute_update_item(table, input):
 
 
 # -----------------------------------------------------------------------------
+# Update Table
+
+def update_items_from_scan(
+    table, scan_input, update_input_builder, hash_key='id', verbose=False
+):
+    """Perform scan on `table` using `scan_input` and update returned items
+    using input returned from `update_input_builder
+
+    Parameters
+    ----------
+    table : boto3.dynamodb.Table
+        DynamoDB table to update
+    scan_input : dict
+        Input for `scan()`
+    update_input_builder : (dict) -> dict
+        Function providing input for `update_item()`
+    hash_key : str, optional
+        DynamoDB HASH key for items
+    verbose : bool, optional
+        Description
+
+    Returns
+    -------
+    list
+        List of item `hash_key`s that could not be updated
+
+    Raises
+    ------
+    UpdateItemError
+        Description
+    """
+    scan_count = 0
+    last_key = True
+    updated_count = 0
+    errors = []
+    while last_key is not None:
+        print(f'Runnning scan: {scan_count}')
+
+        if scan_count > 0:
+            scan_input['ExclusiveStartKey'] = last_key
+
+        items = []
+        try:
+            scan_resp = execute_scan(table, scan_input)
+            items = scan_resp.get('Items', [])
+            last_key = scan_resp.get('LastEvaluatedKey')
+            scan_count += 1
+        except ClientError as e:
+            # TODO: how to handle?
+            raise UpdateItemError(errors)
+        except ResponseStatusError as e:
+            # TODO: how to handle?
+            raise UpdateItemError(errors)
+        except BaseException as e:
+            raise UpdateItemError(errors)
+
+        # Update items
+        for item in items:
+            if verbose:
+                print(f'Updating item {item.get(hash_key)} ...')
+            update_input = update_input_factory(item)
+
+            try:
+                execute_update_item(table, update_input)
+                updated_count += 1
+            except ClientError as e:
+                # if verbose:
+                print(f"Error updating item '{item.get(hash_key)}': {e}")
+                errors.append(item['id'])
+            except ResponseStatusError as e:
+                # if verbose:
+                print(f"Error updating item '{item.get(hash_key)}': {e}")
+                errors.append(item['id'])
+
+    # Finish
+    if errors:
+        print(f'Finished updating {updated_count} items; unable to update: {errors}')
+        # raise ddb.UpdateItemError(errors)
+        return errors
+    else:
+        print(f'Finished updating {updated_count} items')
+
+
+def update_items_from_query(
+    table, query_input, update_input_builder, hash_key='id', verbose=False
+):
+    """Perform query on `table` using `query_input` and update returned items
+    using input returned from `update_input_builder
+
+    Parameters
+    ----------
+    table : boto3.dynamodb.Table
+        DynamoDB table to update
+    scan_input : dict
+        Input for `query()`
+    update_input_builder : (dict) -> dict
+        Function providing input for `update_item()`
+    hash_key : str, optional
+        DynamoDB HASH key for items
+    verbose : bool, optional
+        Description
+
+    Returns
+    -------
+    list
+        List of item `hash_key`s that could not be updated
+
+    Raises
+    ------
+    UpdateItemError
+        Description
+    """
+    page_count = 0
+    last_key = True
+    updated_count = 0
+    errors = []
+    while last_key is not None:
+        print(f'Runnning query: {page_count}')
+
+        if page_count > 0:
+            query_input['ExclusiveStartKey'] = last_key
+
+        items = []
+        try:
+            scan_resp = execute_query(table, query_input)
+            items = scan_resp.get('Items', [])
+            last_key = scan_resp.get('LastEvaluatedKey')
+            scan_count += 1
+        except ClientError as e:
+            # TODO: how to handle?
+            raise UpdateItemError(errors)
+        except ResponseStatusError as e:
+            # TODO: how to handle?
+            raise UpdateItemError(errors)
+        except BaseException as e:
+            raise UpdateItemError(errors)
+
+        # Update items
+        for item in items:
+            if verbose:
+                print(f'Updating item {item.get(hash_key)} ...')
+            update_input = update_input_factory(item)
+
+            try:
+                execute_update_item(table, update_input)
+                updated_count += 1
+            except ClientError as e:
+                # if verbose:
+                print(f"Error updating item '{item.get(hash_key)}': {e}")
+                errors.append(item['id'])
+            except ResponseStatusError as e:
+                # if verbose:
+                print(f"Error updating item '{item.get(hash_key)}': {e}")
+                errors.append(item['id'])
+
+    # Finish
+    if errors:
+        print(f'Finished updating {updated_count} items; unable to update: {errors}')
+        # raise ddb.UpdateItemError(errors)
+        return errors
+    else:
+        print(f'Finished updating {updated_count} items')
+
+
+# -----------------------------------------------------------------------------
 # Client-Based
 
 def create_dynamodb_client(region="us-west-2"):
