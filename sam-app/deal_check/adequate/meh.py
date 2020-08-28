@@ -188,9 +188,9 @@ def _parse_response(response):
     deal.update(launchStatus=launch_status.name)
 
     # Convert floats (sometimes) to ints
-    for item in deal.get('items', []):
-        curr_price = item.get('price', 0)
-        item['price'] = curr_price * 100
+    # for item in deal.get('items', []):
+    #     curr_price = item.get('price', 0)
+    #     item['price'] = curr_price * 100
 
     # Handle error when `Item.attributes` is `[]`
     deal['items'] = [_fix_empty_array(i, 'attributes', nullable=True)
