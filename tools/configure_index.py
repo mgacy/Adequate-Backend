@@ -148,7 +148,7 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument('table_name', metavar='table-name')
     parser.add_argument('--index', metavar='index-name',
                         default=RECENT_INDEX_NAME,
-                        help='Override default name for GSI',)
+                        help='Override default name for GSI')
     # TODO: add support for `PAY_PER_REQUEST` `BillingMode`
     # parser.add_argument('--billing-mode', choices=BILLING_MODES, default='PROVISIONED')
     parser.add_argument('--read', type=int, default=DEFAULT_READ_UNITS,

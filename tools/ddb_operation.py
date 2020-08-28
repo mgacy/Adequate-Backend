@@ -1,6 +1,7 @@
 import boto3
 from botocore.exceptions import ClientError
 
+# FIXME: use logger instead of `print()`
 
 # -----------------------------------------------------------------------------
 # Error Info
@@ -227,12 +228,11 @@ def execute_scan(table, input):
         Scan was not successful
     BaseException
         Unknown error
-    """  # noqa E501 
+    """  # noqa E501
     try:
         response = table.scan(**input)
         raise_for_status(response)
         print("Scan successful.")
-        # Caller may need response['LastEvaluatedKey`], so return entire response
         return response
     except ClientError as error:
         handle_client_error(error)
