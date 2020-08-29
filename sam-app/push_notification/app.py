@@ -97,9 +97,11 @@ def lambda_handler(event, context):
     try:
         response = apns.publish_message(session, TOPIC_ARN, APNS_SERVER,
                                         apns_message)
-        apns.verify_response(response)
-    except Exception as e:
-        log.error(
+        apns.raise_for_status(response)
+    except ValueError as e:
+        logger.error(f"## {e}")
+    except apns.ResponseStatusError as e:
+        logger.error(
             f"## Failed to send SNS message: {json.dumps(response, indent=2)}"
         )
         raise e
