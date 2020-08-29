@@ -367,7 +367,8 @@ def update_items_from_scan(
 
     # Finish
     if errors:
-        print(f'Finished updating {updated_count} items; unable to update: {errors}')
+        print(f'Finished updating {updated_count} items; '
+              f'unable to update: {errors}')
         # raise ddb.UpdateItemError(errors)
         return errors
     else:
@@ -448,7 +449,8 @@ def update_items_from_query(
 
     # Finish
     if errors:
-        print(f'Finished updating {updated_count} items; unable to update: {errors}')
+        print(f'Finished updating {updated_count} items; '
+              f'unable to update: {errors}')
         # raise ddb.UpdateItemError(errors)
         return errors
     else:

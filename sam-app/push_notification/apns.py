@@ -29,8 +29,6 @@ class ResponseStatusError(Exception):
         # TODO: extract `response['ResponseMetadata']`?
         self.response = response
 
-    # def __repr__(self):
-
 
 def make_delta_message(message):
     """Documentation
@@ -49,7 +47,7 @@ def make_delta_message(message):
 
     Raises
     ------
-    KeyError
+    ValueError
         Malformed `message`
     """
     try:
@@ -107,7 +105,7 @@ def make_new_deal_message(message, apns_category):
 
     Raises
     ------
-    KeyError
+    ValueError
         Malformed `message`
     """
     TITLE_FORMAT = 'New Deal for {}'

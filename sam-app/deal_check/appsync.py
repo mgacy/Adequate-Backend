@@ -22,7 +22,7 @@ class GraphQLError(Exception):
         self.error_info = kwargs.get('errorInfo', None)
 
 
-# Use this to wrap equests.exceptions.RequestException / GraphQLError?
+# Use this to wrap requests.exceptions.RequestException / GraphQLError?
 class AppSyncException(Exception):
     def __init__(self, message, errors=None):
         super().__init__(message)
