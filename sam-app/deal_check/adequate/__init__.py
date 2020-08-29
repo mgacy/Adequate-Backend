@@ -29,6 +29,7 @@ def meh(api_key):
     params = {'apikey': api_key}
     r = requests.get(MEH_ENDPOINT, params=params)
     r.raise_for_status()
+    # TODO: wrap requests exceptions
     return _parse_response(r.json())
 
 

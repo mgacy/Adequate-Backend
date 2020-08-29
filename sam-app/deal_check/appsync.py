@@ -10,6 +10,8 @@ import requests
 from requests_aws4auth import AWS4Auth
 
 
+# TODO: add base exception for this module; then add subclass to wrap requests exceptions
+# TODO: add separate exception for responses that are missing data
 # TODO: maybe look at graphql-core.
 class GraphQLError(Exception):
     def __init__(self, message, locations, path, **kwargs):
@@ -40,6 +42,7 @@ DEAL_FRAGMENTS = {
     'story': 'story { title body } ',
     'theme': 'theme { accentColor backgroundColor backgroundImage foreground } ',  # noqa E501
     'topic': 'topic { id commentCount createdAt replyCount url voteCount } ',
+    # Sets of fields
     'update': '_lastChangedAt _version _deleted ',
 }
 
@@ -376,12 +379,14 @@ class AppSync(object):
         requests.exceptions.RequestException
             Request failed
         """
+        # try:
         resp = self.session.request(
             url=self.url,
             method='POST',
             json=body
         )
-        # TODO: should we wrap requests.HTTPError in AppSyncException?
         resp.raise_for_status()
+        # TODO: wrap requests exceptions
+        # except requests.exceptions.RequestException as e:
         # FIXME: `json()` can raise `ValueError` for invalid json; handle that?
         return GraphQLResponse(resp.json())

@@ -80,9 +80,8 @@ def lambda_handler(event, context):
         logger.info(f"## New Deal: {message}")
         try:
             apns_message = apns.make_new_deal_message(message, APNS_CATEGORY)
-        except Exception as e:
-            # TODO: improve message
-            logger.exception(f"## ERROR: {e}")
+        except (ValueError, KeyError) as e:
+            logger.exception(f"## {e}")
             raise e
 
     elif subject == 'delta':
@@ -91,7 +90,7 @@ def lambda_handler(event, context):
 
     else:
         logger.error(f"## Invalid subject: '{subject}'")
-        raise Exception(f"Invalid subject: '{subject}'")
+        raise ValueError(f"Invalid subject: '{subject}'")
 
     logger.info("## Sending SNS message")
     try:

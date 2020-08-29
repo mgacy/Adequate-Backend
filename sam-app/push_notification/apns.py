@@ -207,7 +207,15 @@ def raise_for_status(response):
         Response status code was not 200
     """
     status_code = response.get('ResponseMetadata', {}).get('HTTPStatusCode')
+    # TODO: allow other 200 codes as well?
     if status_code != 200:
+        # msg = ''
+        # if 400 <= status_code < 500:
+        #     msg = f'{status_code} Client Error: {STATUS_CODES[status_code]}'
+        # elif 500 <= status_code < 600:
+        #     msg = f'{status_code} Server Error: {STATUS_CODES[status_code]}'
+
+        # raise ResponseStatusError(msg, response)
         raise ResponseStatusError(status_code, response)
 
 

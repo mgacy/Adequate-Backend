@@ -90,7 +90,7 @@ def replace_current_deal(local, remote):
             handle_copy_error(local, e)
         except AppSyncException as err:
             logger.exception(
-                f'## Failed to copy current_deal: {err.message} - {err.errors}'
+                f'## Failed to copy current_deal: {json.dumps(local)}\nErrors: {err.errors}'
             )
             raise err
 
@@ -218,6 +218,7 @@ def send_sns(session, topic_arn, content):
         Message=json.dumps({'default': json.dumps(message)}),
         MessageStructure='json'
     )
+    # TODO: encapsulate this
     status_code = response.get('ResponseMetadata', {}).get('HTTPStatusCode')
     if status_code != 200:
         raise Exception(
