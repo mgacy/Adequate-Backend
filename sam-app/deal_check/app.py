@@ -346,23 +346,20 @@ def lambda_handler(event, context):
 
         r = replace_current_deal(current, update)
 
-        # TODO: Notification
+        # Notification
         # try:
         message = adequate.alert_message(update)
         # except ValueError as e:
         #     logger.error(
-        #         f"## Failed to generate notification due to malformed deal: "
-        #         f"{update}'
+        #         f"## Failed to generate notification: {e}"
+        #         f"\nUpdate: {json.dumps(update, indent=2)}"
         #     )
         #     raise e
 
     # Send to Topic
     # logger.info('## Sending to SNS ...')
-    # try:
-    sns_resp = send_sns(session, TOPIC_ARN, message)
-
-    # response = publish_message(region_name=SNS_REGION_NAME,
-    #                            topic_arn=TOPIC_ARN,
-    #                            message=message)
-    # logger.info('PUBLISH RESPONSE: {}'.format(response))
-    # verify_response(response)
+    try:
+        sns_resp = send_sns(session, TOPIC_ARN, message)
+    except Exception as e:
+        logger.exception(f"## Failed to send SNS notification: {e}")
+        raise e
