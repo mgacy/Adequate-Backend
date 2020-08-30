@@ -117,6 +117,7 @@ def replace_current_deal(local, remote):
     except AppSyncException as e:
         logger.exception(
             f'## Failed to replace current_deal: {e.message} - {e.errors}'
+            f'\nDeal: {json.dumps(remote, indent=2)}'
         )
         raise e
 
@@ -276,7 +277,7 @@ def lambda_handler(event, context):
     # Compare deals
     current = current_response.get('getDeal')
     if current is None:
-        logger.info('Current Deal Missing ...')
+        logger.info('## Current Deal Missing ...')
 
         update['id'] = adequate.CURRENT_ID_KEY_VALUE
         try:
@@ -290,6 +291,7 @@ def lambda_handler(event, context):
         except AppSyncException as e:
             logger.error(
                 f'## Failed to create current_deal: {e.message} - {e.errors}'
+                f'\nDeal: {json.dumps(current, indent=2)}'
             )
             raise e
 
@@ -299,7 +301,7 @@ def lambda_handler(event, context):
         # except ValueError as e:
 
     elif update['id'] == current.get('dealID', None):
-        logger.info('Same Deal ...')
+        logger.info('## Same Deal ...')
 
         delta = adequate.delta(current, update)
         if not delta:
@@ -322,7 +324,7 @@ def lambda_handler(event, context):
             except AppSyncException as e:
                 logger.error(
                     f'## Failed to upate current_deal: {e.message} - '
-                    f'{e.errors}'
+                    f'{e.errors}\nDelta: {json.dumps(delta, indent=2)}'
                 )
                 raise e
             # except ValueError as e:
@@ -353,7 +355,7 @@ def lambda_handler(event, context):
         #     raise e
 
     # Send to Topic
-    # logger.info('Sending to SNS ...')
+    # logger.info('## Sending to SNS ...')
     # try:
     sns_resp = send_sns(session, TOPIC_ARN, message)
 
