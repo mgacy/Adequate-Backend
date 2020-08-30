@@ -18,21 +18,34 @@ RESERVE_HOUR = 16
 
 # FIXME: it is confusing that (a) this is named `delta` and (b) we have a `DealDelta` type, yet this returns a dict  # noqa E501
 def delta(current, update, now=None):
-    """Return changes
+    """Return changes between `current` and `update` to use as mutation input.
 
     Parameters
     ----------
     current : dict
-        Description
+        Deal fetched from Adequate API
     update : dict
-        Description
+        Deal fetched from meh.com API
     now : datetime, optional
         Current datetime
 
     Returns
     -------
     dict
-        Description
+        Input for `AppSync.update_deal()`
+
+        _version : int
+            Deal `_version`
+        id : str
+            Deal `id`
+        launches : list[dict], optional
+            Deal `launches`
+        launchStatus : str, optional
+            Deal `launchStatus`
+        soldOutAt : str, optional
+            Deal `soldOutAt`
+        topic : dict, optional
+            Deal `topic`
     """
     delta = _diff_launches(current, update)
 
@@ -54,6 +67,25 @@ def delta(current, update, now=None):
 
 # TODO: fix overlap between this and `_diff_launch_status()`
 def get_launch_status(deal, now=None):
+    """Return `LaunchStatus` for `deal`.
+
+    Parameters
+    ----------
+    deal : dict
+        Description
+    now : datetime, optional
+        Current datetime
+
+    Returns
+    -------
+    LaunchStatus
+        Description
+
+    Raises
+    ------
+    ValueError
+        Description
+    """
     if deal.get('soldOutAt', None):
         return LaunchStatus.soldOut
 
@@ -67,7 +99,8 @@ def get_launch_status(deal, now=None):
     if launches:
         if len(launches) != 2:
             raise ValueError(
-                f"Malformed `launches` - Received {launches}. Expected 2 k, v pairs."  # noqa E501
+                f"Malformed `launches` - Received {launches}. "
+                "Expected 2 k, v pairs."
             )
 
         if launches[1].get('soldOutAt'):
@@ -100,7 +133,7 @@ def _diff_launches(current, update):
     Parameters
     ----------
     current : dict
-        Deal fetched from DynamoDB
+        Deal fetched from Adequate API
     update : dict
         Deal fetched from meh.com API
 
@@ -108,6 +141,11 @@ def _diff_launches(current, update):
     -------
     dict
         Description
+
+        soldOutAt : str, optional
+            Deal `soldOutAt`
+        launches : list[dict], optional
+            Deal `launches`
     """
     delta = {}
 
@@ -123,6 +161,27 @@ def _diff_launches(current, update):
 
 
 def _diff_launch_status(current, delta, now=None):
+    """Summary
+
+    Parameters
+    ----------
+    current : dict
+        Deal fetched from Adequate API
+    delta : dict
+        Description
+    now : datetime, optional
+        Current datetime
+
+    Returns
+    -------
+    TYPE
+        Description
+
+    Raises
+    ------
+    ValueError
+        Description
+    """
     # TODO: pass `delta` or just `delta['launches']`?
 
     # Provide option to pass `now` for testing
@@ -139,7 +198,8 @@ def _diff_launch_status(current, delta, now=None):
     except (TypeError, KeyError):
         statuses = [k for k, _ in LaunchStatus.__members__.items()]
         raise ValueError(
-            f"Invalid LaunchStatus - Received {cs}. Valid LaunchStatus values are {statuses}"  # noqa E501
+            f"Invalid LaunchStatus - Received {cs}. "
+            f"Valid LaunchStatus values are {statuses}"
         )
 
     dl = delta.get('launches', [])
@@ -227,7 +287,7 @@ def _diff_topic(current, update):
     current : dict
         Description
     update : dict
-        Description
+        Deal fetched from meh.com API
 
     Returns
     -------

@@ -7,6 +7,7 @@ v 0.1
 import json
 # from boto3.session import Session as AWSSession
 import requests
+# from requests.exceptions import RequestException
 from requests_aws4auth import AWS4Auth
 
 
@@ -14,6 +15,27 @@ from requests_aws4auth import AWS4Auth
 # TODO: add separate exception for responses that are missing data
 # TODO: maybe look at graphql-core.
 class GraphQLError(Exception):
+    """GraphQL error.
+
+    https://spec.graphql.org/June2018/#sec-Errors
+
+    Attributes
+    ----------
+    error_info : TYPE
+        AppSync-specific attribute
+    error_type : TYPE
+        AppSync-specific attribute
+    locations : dict
+        Describes the beginning of an associated syntax element
+
+        line : int
+        column : int
+    message : str
+        Description of the error
+    path : list
+        Describes the path of the response field which experienced the error.
+    """
+
     def __init__(self, message, locations, path, **kwargs):
         super().__init__(message)
         self.message = message
@@ -86,7 +108,7 @@ class GraphQLResponse(object):
         AppSyncException
             Response contained errors
         """
-        # TODO: improve error descriptions
+        # TODO: improve error descriptions; try to categorize different errors
         if self.errors:
             raise AppSyncException(message='There were GraphQL errors',
                                    errors=self.errors)
@@ -387,6 +409,7 @@ class AppSync(object):
         )
         resp.raise_for_status()
         # TODO: wrap requests exceptions
-        # except requests.exceptions.RequestException as e:
+        # except RequestException as e:
+        #     raise X
         # FIXME: `json()` can raise `ValueError` for invalid json; handle that?
         return GraphQLResponse(resp.json())

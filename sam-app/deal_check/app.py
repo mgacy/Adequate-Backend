@@ -167,7 +167,9 @@ def handle_copy_error(deal, error):
 
     # Some other error we can't handle
     else:
-        logger.exception(f"## Unable to recover from error copying current_deal")
+        logger.exception(
+            f"## Unable to recover from error copying current_deal"
+        )
         raise error
 
 
