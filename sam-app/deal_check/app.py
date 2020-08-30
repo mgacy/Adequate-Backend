@@ -88,10 +88,7 @@ def replace_current_deal(local, remote):
     except AppSyncException as e:
         try:
             handle_copy_error(local, e)
-        except AppSyncException as err:
-            logger.exception(
-                f'## Failed to copy current_deal: {json.dumps(local)}\nErrors: {err.errors}'
-            )
+        except Exception as err:
             raise err
 
     # 2. Update current_deal with update
@@ -125,6 +122,11 @@ def replace_current_deal(local, remote):
 
 
 def handle_copy_error(deal, error):
+    logger.error(
+        f'## Failed to copy current_deal: {error.message} - {error.errors}'
+        f'\nDeal: {json.dumps(deal, indent=2)}'
+    )
+
     if error.errors and ('ConditionalCheckFailedException'
                          in ', '.join([e.error_type for e in error.errors])):
         # Check if deal has already been copied to database
@@ -132,18 +134,18 @@ def handle_copy_error(deal, error):
             r = appsync.get_deal(deal['id'])
             r.raise_for_errors()
         except RequestException as e:
-            logger.error(
-                f"## Failed to copy current_deal; Additionally, request to "
-                f"fetch Deal '{deal['id']}' while handling that error failed: "
-                f"{e.message}"
+            logger.exception(
+                f"## Unable to recover from error copying current_deal - "
+                f"request to fetch Deal '{deal['id']}' failed: {e.message}"
             )
-            raise error
+            raise e
         except AppSyncException as e:
-            logger.error(
-                f"## Failed to copy current_deal; Encountered additional "
-                f"error trying to recover: {error.message} - {error.errors}"
+            logger.exception(
+                f"## Unable to recover from error copying current_deal - "
+                f"encountered additional error fetching Deal '{deal['id']}':"
+                f"{e.message} - {e.errors}"
             )
-            raise error
+            raise e
 
         # If copy of deal already exists,
         existing = r.get('getDeal')
@@ -156,14 +158,16 @@ def handle_copy_error(deal, error):
                 f"db with id '{deal['id']}'"
             )
         else:
-            logger.warning(
-                f"## Deal '{deal['title']}' already exists in db but differs "
-                f"from current_deal"
+            logger.exception(
+                f"## Unable to recover from error copying current_deal - "
+                f"Deal'{deal['title']}' already exists in db but differs "
+                f"from current_deal: {json.dumps(deal, indent=2)}"
             )
             raise error
 
     # Some other error we can't handle
     else:
+        logger.exception(f"## Unable to recover from error copying current_deal")
         raise error
 
 
@@ -340,9 +344,7 @@ def lambda_handler(event, context):
             f"'{update['title']}'"
         )
 
-        # try:
         r = replace_current_deal(current, update)
-        # except Exception as e:
 
         # TODO: Notification
         # try:
