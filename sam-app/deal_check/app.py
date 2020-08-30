@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import boto3
-import requests
+from requests.exceptions import RequestException
 import adequate
 from appsync import AppSync, AppSyncException
 
@@ -80,7 +80,7 @@ def replace_current_deal(local, remote):
     try:
         r1 = appsync.create_deal(local)
         r1.raise_for_errors()
-    except requests.exceptions.RequestException as e:
+    except RequestException as e:
         logger.exception(
             f'## Request to copy current_deal failed: {e.message}'
         )
@@ -109,8 +109,10 @@ def replace_current_deal(local, remote):
     try:
         r2 = appsync.update_deal(remote)
         r2.raise_for_errors()
-    except requests.exceptions.RequestException as e:
-        logger.exception(f'## Failed to replace current_deal: {e.message}')
+    except RequestException as e:
+        logger.exception(
+            f'## Request to replace current_deal failed: {e.message}'
+        )
         raise e
     except AppSyncException as e:
         logger.exception(
@@ -128,7 +130,7 @@ def handle_copy_error(deal, error):
         try:
             r = appsync.get_deal(deal['id'])
             r.raise_for_errors()
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             logger.error(
                 f"## Failed to copy current_deal; Additionally, request to "
                 f"fetch Deal '{deal['id']}' while handling that error failed: "
@@ -264,7 +266,7 @@ def lambda_handler(event, context):
 
     # https://stackoverflow.com/a/16511493
     # TODO: handle `ValueError` from appsync
-    except requests.exceptions.RequestException as e:
+    except RequestException as e:
         logger.error(f'## Request to fetch deal failed: {e}')
         raise e
     except AppSyncException as e:
@@ -280,7 +282,7 @@ def lambda_handler(event, context):
         try:
             r = appsync.create_deal(update)
             r.raise_for_errors()
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             logger.error(
                 f'## Request to create current_deal failed: {e.message}'
             )
@@ -312,7 +314,7 @@ def lambda_handler(event, context):
                 r = appsync.update_deal(delta)
                 r.raise_for_errors()
                 # message = adequate.delta_message(delta)
-            except requests.exceptions.RequestException as e:
+            except RequestException as e:
                 logger.error(
                     f'## Request to upate current_deal failed: {e.message}'
                 )
