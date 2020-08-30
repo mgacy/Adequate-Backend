@@ -59,9 +59,12 @@ def _fix_empty_array(item, key, nullable=True):
             ...
         }
 
-    Example:
+    Examples:
 
-        r = _null_array({'attributes': []}, 'attributes')
+        r = _fix_empty_array({'attributes': []}, 'attributes', nullable=True)
+        # {'attributes': [None]}
+
+        r = _fix_empty_array({'attributes': []}, 'attributes', nullable=False)
         # {'attributes': None}
 
     Parameters
@@ -152,14 +155,18 @@ def _parse_response(response):
 
     Extracts `deal` from server response and adds the following fields:
 
-    dealID : String
+    dealID : str
         `id` of deal (since `Deal.id` will be `current_deal` in AppSync)
-    createdAt : String
+    createdAt : str
         Creation date extracted from `topic`, `poll`, or time fetched
-    modelNumbers : [String]
+    modelNumbers : [str]
         Array of model numbers extracted from `specifications`
     launchStatus : LaunchStatus
         Status of launch
+
+    Mutates the following fields:
+
+    items : list[dict]
 
     Parameters
     ----------

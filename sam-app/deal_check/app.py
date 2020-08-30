@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import boto3
-import requests
+from requests.exceptions import RequestException
 import adequate
 from appsync import AppSync, AppSyncException
 
@@ -80,7 +80,7 @@ def replace_current_deal(local, remote):
     try:
         r1 = appsync.create_deal(local)
         r1.raise_for_errors()
-    except requests.exceptions.RequestException as e:
+    except RequestException as e:
         logger.exception(
             f'## Request to copy current_deal failed: {e.message}'
         )
@@ -88,10 +88,7 @@ def replace_current_deal(local, remote):
     except AppSyncException as e:
         try:
             handle_copy_error(local, e)
-        except AppSyncException as err:
-            logger.exception(
-                f'## Failed to copy current_deal: {json.dumps(local)}\nErrors: {err.errors}'
-            )
+        except Exception as err:
             raise err
 
     # 2. Update current_deal with update
@@ -109,12 +106,15 @@ def replace_current_deal(local, remote):
     try:
         r2 = appsync.update_deal(remote)
         r2.raise_for_errors()
-    except requests.exceptions.RequestException as e:
-        logger.exception(f'## Failed to replace current_deal: {e.message}')
+    except RequestException as e:
+        logger.exception(
+            f'## Request to replace current_deal failed: {e.message}'
+        )
         raise e
     except AppSyncException as e:
         logger.exception(
             f'## Failed to replace current_deal: {e.message} - {e.errors}'
+            f'\nDeal: {json.dumps(remote, indent=2)}'
         )
         raise e
 
@@ -122,25 +122,30 @@ def replace_current_deal(local, remote):
 
 
 def handle_copy_error(deal, error):
+    logger.error(
+        f'## Failed to copy current_deal: {error.message} - {error.errors}'
+        f'\nDeal: {json.dumps(deal, indent=2)}'
+    )
+
     if error.errors and ('ConditionalCheckFailedException'
                          in ', '.join([e.error_type for e in error.errors])):
         # Check if deal has already been copied to database
         try:
             r = appsync.get_deal(deal['id'])
             r.raise_for_errors()
-        except requests.exceptions.RequestException as e:
-            logger.error(
-                f"## Failed to copy current_deal; Additionally, request to "
-                f"fetch Deal '{deal['id']}' while handling that error failed: "
-                f"{e.message}"
+        except RequestException as e:
+            logger.exception(
+                f"## Unable to recover from error copying current_deal - "
+                f"request to fetch Deal '{deal['id']}' failed: {e.message}"
             )
-            raise error
+            raise e
         except AppSyncException as e:
-            logger.error(
-                f"## Failed to copy current_deal; Encountered additional "
-                f"error trying to recover: {error.message} - {error.errors}"
+            logger.exception(
+                f"## Unable to recover from error copying current_deal - "
+                f"encountered additional error fetching Deal '{deal['id']}':"
+                f"{e.message} - {e.errors}"
             )
-            raise error
+            raise e
 
         # If copy of deal already exists,
         existing = r.get('getDeal')
@@ -153,14 +158,18 @@ def handle_copy_error(deal, error):
                 f"db with id '{deal['id']}'"
             )
         else:
-            logger.warning(
-                f"## Deal '{deal['title']}' already exists in db but differs "
-                f"from current_deal"
+            logger.exception(
+                f"## Unable to recover from error copying current_deal - "
+                f"Deal'{deal['title']}' already exists in db but differs "
+                f"from current_deal: {json.dumps(deal, indent=2)}"
             )
             raise error
 
     # Some other error we can't handle
     else:
+        logger.exception(
+            f"## Unable to recover from error copying current_deal"
+        )
         raise error
 
 
@@ -264,7 +273,7 @@ def lambda_handler(event, context):
 
     # https://stackoverflow.com/a/16511493
     # TODO: handle `ValueError` from appsync
-    except requests.exceptions.RequestException as e:
+    except RequestException as e:
         logger.error(f'## Request to fetch deal failed: {e}')
         raise e
     except AppSyncException as e:
@@ -274,13 +283,13 @@ def lambda_handler(event, context):
     # Compare deals
     current = current_response.get('getDeal')
     if current is None:
-        logger.info('Current Deal Missing ...')
+        logger.info('## Current Deal Missing ...')
 
         update['id'] = adequate.CURRENT_ID_KEY_VALUE
         try:
             r = appsync.create_deal(update)
             r.raise_for_errors()
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             logger.error(
                 f'## Request to create current_deal failed: {e.message}'
             )
@@ -288,6 +297,7 @@ def lambda_handler(event, context):
         except AppSyncException as e:
             logger.error(
                 f'## Failed to create current_deal: {e.message} - {e.errors}'
+                f'\nDeal: {json.dumps(current, indent=2)}'
             )
             raise e
 
@@ -297,7 +307,7 @@ def lambda_handler(event, context):
         # except ValueError as e:
 
     elif update['id'] == current.get('dealID', None):
-        logger.info('Same Deal ...')
+        logger.info('## Same Deal ...')
 
         delta = adequate.delta(current, update)
         if not delta:
@@ -312,7 +322,7 @@ def lambda_handler(event, context):
                 r = appsync.update_deal(delta)
                 r.raise_for_errors()
                 # message = adequate.delta_message(delta)
-            except requests.exceptions.RequestException as e:
+            except RequestException as e:
                 logger.error(
                     f'## Request to upate current_deal failed: {e.message}'
                 )
@@ -320,7 +330,7 @@ def lambda_handler(event, context):
             except AppSyncException as e:
                 logger.error(
                     f'## Failed to upate current_deal: {e.message} - '
-                    f'{e.errors}'
+                    f'{e.errors}\nDelta: {json.dumps(delta, indent=2)}'
                 )
                 raise e
             # except ValueError as e:
@@ -336,27 +346,22 @@ def lambda_handler(event, context):
             f"'{update['title']}'"
         )
 
-        # try:
         r = replace_current_deal(current, update)
-        # except Exception as e:
 
-        # TODO: Notification
+        # Notification
         # try:
         message = adequate.alert_message(update)
         # except ValueError as e:
         #     logger.error(
-        #         f"## Failed to generate notification due to malformed deal: "
-        #         f"{update}'
+        #         f"## Failed to generate notification: {e}"
+        #         f"\nUpdate: {json.dumps(update, indent=2)}"
         #     )
         #     raise e
 
     # Send to Topic
-    # logger.info('Sending to SNS ...')
-    # try:
-    sns_resp = send_sns(session, TOPIC_ARN, message)
-
-    # response = publish_message(region_name=SNS_REGION_NAME,
-    #                            topic_arn=TOPIC_ARN,
-    #                            message=message)
-    # logger.info('PUBLISH RESPONSE: {}'.format(response))
-    # verify_response(response)
+    # logger.info('## Sending to SNS ...')
+    try:
+        sns_resp = send_sns(session, TOPIC_ARN, message)
+    except Exception as e:
+        logger.exception(f"## Failed to send SNS notification: {e}")
+        raise e
