@@ -85,9 +85,7 @@ def get_launch_status(deal, now=None):
                 return LaunchStatus.relaunch
 
     # No sell out events
-    if now >= reserve:
-        return LaunchStatus.reserve
-    elif now >= relaunch:
+    if now >= relaunch:
         return LaunchStatus.relaunch
     else:
         return LaunchStatus.launch
@@ -191,9 +189,8 @@ def _diff_launch_status(current, delta, now=None):
     # No changes to `launches`
     else:
         # TODO: do we need to do any additional verification?
-        # FIXME: only change status to `reserve` if `relaunchSoldOut`?
         if (
-            (cs == LaunchStatus.relaunch or cs == LaunchStatus.relaunchSoldOut)
+            cs == LaunchStatus.relaunchSoldOut
             and now >= reserve
         ):
             status = LaunchStatus.reserve

@@ -255,7 +255,7 @@ class DealTestCase(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_launchStatus_launchSoldOut_right_before_relaunch(self):
-        """Premier launch sells out right before Relaunch - 08:59:59.
+        """Premier launch sold out right before Relaunch - 08:59:59.
         """
         current = self.load_deal(self.def_deal)
         current['launches'] = [
@@ -368,7 +368,7 @@ class DealTestCase(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_launchStatus_relaunch_no_status_change(self):
-        """No changes after Relaunch - 09:01.
+        """No changes after Relaunch - 09:00:01.
         """
         current = self.load_deal(self.def_deal)
         # TODO: should Premier have sold out / does it matter / test anyways?
@@ -392,7 +392,31 @@ class DealTestCase(unittest.TestCase):
         result = _diff_launch_status(current, delta, now)
         self.assertEqual(result, expected)
 
-    # Launch sells out right after relaunch
+    def test_launchStatus_reserve_no_status_change(self):
+        """No changes after Reserve - 16:00:01.
+        """
+        current = self.load_deal(self.def_deal)
+        current['launches'] = [
+            {'soldOutAt': None},
+            {'soldOutAt': None},
+        ]
+        current['launchStatus'] = LaunchStatus.relaunch.name
+        current.pop('soldOutAt', None)
+
+        # Changes
+        delta = {}
+
+        # Now
+        hour = RESERVE_HOUR
+        minute = 0
+        second = 1
+        now = time(hour=hour, minute=minute, second=second, tzinfo=Eastern)
+
+        expected = None 
+        result = _diff_launch_status(current, delta, now)
+        self.assertEqual(result, expected)
+
+    # Launch sells out right after Relaunch
     # Launch sells out right before Relaunch
 
     # .relaunchSoldOut
@@ -479,30 +503,6 @@ class DealTestCase(unittest.TestCase):
         self.assertEqual(result, expected)
 
     # .reserve
-
-    def test_launchStatus_reserve_from_relaunch(self):
-        """Transition: .relaunch -> .reserve.
-        """
-        current = self.load_deal(self.def_deal)
-        current['launches'] = [
-            {'soldOutAt': None},
-            {'soldOutAt': None},
-        ]
-        current['launchStatus'] = LaunchStatus.relaunch.name
-        current.pop('soldOutAt', None)
-
-        # Changes
-        delta = {}
-
-        # Now
-        hour = RESERVE_HOUR
-        minute = 0
-        second = 0
-        now = time(hour=hour, minute=minute, second=second, tzinfo=Eastern)
-
-        expected = LaunchStatus.reserve
-        result = _diff_launch_status(current, delta, now)
-        self.assertEqual(result, expected)
 
     def test_launchStatus_reserve_from_relaunchSoldOut(self):
         """ Transition: .relaunchSoldOut -> .reserve - 16:00.
