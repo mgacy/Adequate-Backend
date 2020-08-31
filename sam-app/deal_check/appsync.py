@@ -11,7 +11,7 @@ import requests
 from requests_aws4auth import AWS4Auth
 
 
-# TODO: add base exception for this module; then add subclass to wrap requests exceptions
+# TODO: add base exception and subclass to wrap requests exceptions
 # TODO: add separate exception for responses that are missing data
 # TODO: maybe look at graphql-core.
 class GraphQLError(Exception):
