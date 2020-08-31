@@ -66,8 +66,8 @@ def alert_message(deal):
         raise ValueError(f"Malformed deal - Missing key '{str(e)}'")
 
     # TODO: handle potential TypeError for `prices`?
-    min_price = min(prices) * min_quantity * 0.1
-    max_price = max(prices) * min_quantity * 0.1
+    min_price = min(prices) * min_quantity # * 0.1
+    max_price = max(prices) * min_quantity # * 0.1
     # TODO: verify prices are actually integers before specifying formatting?
     # TODO: do we need to convert to float?
     # TODO: simply send array of prices and let other lambda deal with formatting?
