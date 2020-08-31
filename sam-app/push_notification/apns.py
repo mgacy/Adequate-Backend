@@ -8,6 +8,7 @@ import json
 import boto3
 
 # TODO: rename `ALLOWED_DELTA_TYPES`?
+# TODO: add `new` or keep separate?
 DELTA_TYPES = [
     'commentCount',
     'launchStatus'
@@ -65,8 +66,8 @@ def make_delta_message(message):
 
         apns_dict = _make_background_notification({
             'deal-id': deal_id,
-            'adequate-delta-type': delta_type,
-            'adequate-delta-value': delta_value})
+            'delta-type': delta_type,
+            'delta-value': delta_value})
         # TODO: add additional exception handling
 
         # To send APNs push messages via Boto3 you have to encode the json
@@ -129,8 +130,8 @@ def make_new_deal_message(message, apns_category):
             mutable_content=True,
             additional={
                 'deal-id': deal_id,
-                'adequate-deal-url': deal_url,
-                'adequate-image-url': image_url
+                'deal-url': deal_url,
+                'image-url': image_url
             })
 
         # To send APNs push messages via Boto3 you have to encode the json

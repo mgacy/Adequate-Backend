@@ -19,7 +19,7 @@ class APNSTestCase(unittest.TestCase):
     # make_delta_message
 
     def test_delta_comment_1(self):
-        deal_id = 'a6k5A000000kP9LQAU' 
+        deal_id = 'a6k5A000000kP9LQAU'
         delta_type = 'commentCount'
         delta_value = 5
         
@@ -32,8 +32,8 @@ class APNSTestCase(unittest.TestCase):
         expected = (
             '{"aps": {"content-available": 1}, '
             '"deal-id": "a6k5A000000kP9LQAU", '
-            '"adequate-delta-type": "commentCount", '
-            '"adequate-delta-value": 5}'
+            '"delta-type": "commentCount", '
+            '"delta-value": 5}'
         )
 
         result = apns.make_delta_message(message)
@@ -53,8 +53,8 @@ class APNSTestCase(unittest.TestCase):
         expected = (
             '{"aps": {"content-available": 1}, '
             '"deal-id": "a6k5A000000kP9LQAU", '
-            '"adequate-delta-type": "launchStatus", '
-            '"adequate-delta-value": "launch"}'
+            '"delta-type": "launchStatus", '
+            '"delta-value": "launch"}'
         )
         
         result = apns.make_delta_message(message)
