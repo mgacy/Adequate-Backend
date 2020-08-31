@@ -89,12 +89,7 @@ def alert_message(deal):
     }
 
 
-def delta_message(delta):
-    try:
-        deal_id = delta['id']
-    except KeyError as e:
-        raise ValueError(f"Malformed delta - Missing key '{str(e)}'")
-
+def delta_message(deal_id, delta):
     comment_count = delta.get('topic', {}).get('commentCount', None)
     launch_status = delta.get('launchStatus', None)
 

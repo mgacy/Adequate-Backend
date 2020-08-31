@@ -337,7 +337,7 @@ def lambda_handler(event, context):
 
             # Notification
             # try:
-            message = adequate.delta_message(delta)
+            message = adequate.delta_message(update['id'], delta)
             # except ValueError as e:
 
     else:
