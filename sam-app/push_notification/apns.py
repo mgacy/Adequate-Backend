@@ -1,5 +1,5 @@
 """
-APNS Notification.
+APNs Notification.
 
 v 0.2
 """
@@ -8,6 +8,7 @@ import json
 import boto3
 
 # TODO: rename `ALLOWED_DELTA_TYPES`?
+# TODO: add `new` or keep separate?
 DELTA_TYPES = [
     'commentCount',
     'launchStatus'
@@ -38,12 +39,12 @@ def make_delta_message(message):
     message : dict
         Message from SNS notification with subject of `delta`
     category : str
-        APNS category
+        APNs category
 
     Returns
     -------
     dict
-        Message for APNS
+        Message for APNs
 
     Raises
     ------
@@ -65,11 +66,11 @@ def make_delta_message(message):
 
         apns_dict = _make_background_notification({
             'deal-id': deal_id,
-            'adequate-delta-type': delta_type,
-            'adequate-delta-value': delta_value})
+            'delta-type': delta_type,
+            'delta-value': delta_value})
         # TODO: add additional exception handling
 
-        # To send APNS push messages via Boto3 you have to encode the json
+        # To send APNs push messages via Boto3 you have to encode the json
         # twice. Once for the actual payload and once for the SNS message.
         # https://stackoverflow.com/a/20134162/4472195
         message = json.dumps(apns_dict, ensure_ascii=False)
@@ -96,12 +97,12 @@ def make_new_deal_message(message, apns_category):
             URL for first image
 
     category : str
-        APNS category
+        APNs category
 
     Returns
     -------
     dict
-        Message for APNS
+        Message for APNs
 
     Raises
     ------
@@ -129,11 +130,11 @@ def make_new_deal_message(message, apns_category):
             mutable_content=True,
             additional={
                 'deal-id': deal_id,
-                'adequate-deal-url': deal_url,
-                'adequate-image-url': image_url
+                'deal-url': deal_url,
+                'image-url': image_url
             })
 
-        # To send APNS push messages via Boto3 you have to encode the json
+        # To send APNs push messages via Boto3 you have to encode the json
         # twice. Once for the actual payload and once for the SNS message.
         # https://stackoverflow.com/a/20134162/4472195
         message = json.dumps(apns_dict, ensure_ascii=False)
@@ -144,16 +145,16 @@ def publish_message(
     session, topic_arn, apns_server, apns_message,
     default_message='default message'
 ):
-    """Publish APNS notification via SNS.
+    """Publish APNs notification via SNS.
 
     Parameters
     ----------
     session : boto3.Session
         AWS boto3 Session
     topic_arn : str
-        ARN  for destination SNS topic
+        ARN for destination SNS topic
     apns_server : str
-        APNS server to use; allowed values: ['prod', 'dev', 'both']
+        APNs server to use; allowed values: ['prod', 'dev', 'both']
     apns_message : str
         Message for SNS notification
     default : str, optional
@@ -235,9 +236,9 @@ def push_new_notification(
     topic_arn : str
         AWS SNS Topic ARN
     apns_server : str
-        APNS server to use; allowed values: ['prod', 'dev', 'both']
+        APNs server to use; allowed values: ['prod', 'dev', 'both']
     apns_category : str
-        APNS category
+        APNs category
     message : dict
         Message from SNS notification with subject of `new`
 
@@ -269,7 +270,7 @@ def push_delta_notification(session, topic_arn, apns_server, message):
     topic_arn : str
         AWS SNS Topic ARN
     apns_server : str
-        APNS server to use; allowed values: ['prod', 'dev', 'both']
+        APNs server to use; allowed values: ['prod', 'dev', 'both']
     message : dict
         Message from SNS notification with subject of `delta`
 
@@ -307,7 +308,7 @@ def _make_notification(
     Parameters
     ----------
     category : str
-        APNS category
+        APNs category
     title : str
         Notification title
     body : str, optional

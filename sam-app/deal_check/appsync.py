@@ -11,7 +11,7 @@ import requests
 from requests_aws4auth import AWS4Auth
 
 
-# TODO: add base exception for this module; then add subclass to wrap requests exceptions
+# TODO: add base exception and subclass to wrap requests exceptions
 # TODO: add separate exception for responses that are missing data
 # TODO: maybe look at graphql-core.
 class GraphQLError(Exception):
@@ -58,14 +58,16 @@ class AppSyncException(Exception):
 
 # Fragments on Deal for GraphQL selection sets
 DEAL_FRAGMENTS = {
-    'item': 'items { id attributes { key value } condition price photo } ',
-    'launches': 'launches { soldOutAt } ',
+    # Sets of fields
+    'base': 'id dealID features photos specifications title url ',
+    'update': '_lastChangedAt _version _deleted ',
+    # Nested types
+    'items': 'items { id attributes { key value } condition price photo } ',
+    'launches': 'launches { soldOutAt } soldOutAt ', # `soldOutAt` is closely related  # noqa E501
     'purchaseQuantity': 'purchaseQuantity { maximumLimit minimumLimit } ',
     'story': 'story { title body } ',
     'theme': 'theme { accentColor backgroundColor backgroundImage foreground } ',  # noqa E501
-    'topic': 'topic { id commentCount createdAt replyCount url voteCount } ',
-    # Sets of fields
-    'update': '_lastChangedAt _version _deleted ',
+    'topic': 'topic { id commentCount createdAt replyCount url voteCount } '
 }
 
 
@@ -164,6 +166,7 @@ class AppSync(object):
             'Content-Type': 'application/json',
         }
         self.session = session
+        # TODO: why do we return the session?
         return session
 
     # -------------------------------------------------------------------------
@@ -209,6 +212,9 @@ class AppSync(object):
                                  selection_set)
         body = {'query': query, 'variables': {'id': id}}
         return self.execute(body)
+
+    # TODO: add `getDealList()`
+    # TODO: add `dealHistory()l`
 
     def create_deal(self, deal_input, selection_set=None):
         """Execute `createDeal` mutation and return result.

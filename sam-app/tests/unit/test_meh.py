@@ -50,7 +50,7 @@ class MehTestCase(unittest.TestCase):
     # Request
 
     # Creation Date
-    # def test_parse_creation_date(self):
+    # def test_created_at_X(self):
 
     # - Deal has topic.createdAt
     def test_created_at_has_topic_created_at(self):
@@ -117,19 +117,15 @@ class MehTestCase(unittest.TestCase):
         created_at = _parse_creation_date(response)
         self.assertIsNotNone(created_at)
 
-    # Composite Keys
-
-    # def test_parse_composite_keys(self):
-
     # Model Numbers
-
-    # def test__parse_model_numbers(self):
+    # def test_parse_model_numbers_X(self):
 
     # - Expected model numbers
 
     # - Missing model numbers
 
     # Empty Arrays
+    # def test_empty_array_X(self):
 
     def test_empty_array_not_empty_and_nullable(self):
         """Verify method does not alter non-empty, nullable list."""
@@ -214,5 +210,5 @@ class MehTestCase(unittest.TestCase):
         self.assertEqual(result, expected)
 
     # Parse Response
+    # def test_parse_response_X(self):
 
-    # def test_parse_response(self):
