@@ -341,6 +341,7 @@ def _diff_topic(current, update):
     return delta
 
 
+# TODO: am I still using this and what is its relation to `delta_message()`?
 def _diff_deal_delta(delta):
     """Returns dict of DealDelta keys and corresponding values for a mutation
     input.
