@@ -7,7 +7,7 @@ type Deal @model
     ])
 {
     id: ID!
-    dealID: ID
+    dealID: ID! 
     dealYear: String!
     monthDay: String!
     title: String!
@@ -96,7 +96,7 @@ enum LaunchStatus {
 # Custom Mutation and associated types
 input CreateDealInput {
   id: ID
-  dealID: ID
+  dealID: ID!
   # dealYear: String!
   # monthDay: String!
   title: String!
@@ -119,6 +119,29 @@ input CreateDealInput {
 }
 
 # TODO: add `UpdateDealInput` w/o `dealYear` and `monthDay` fields? 
+# input UpdateDealInput {
+#   id: ID!
+#   dealID: ID
+#   # dealYear: String
+#   # monthDay: String
+#   title: String
+#   features: String
+#   specifications: String
+#   url: AWSURL
+#   createdAt: AWSDateTime
+#   endDate: AWSDateTime
+#   soldOutAt: AWSDateTime
+#   items: [ItemInput!]
+#   modelNumbers: [String!]
+#   photos: [AWSURL!]
+#   story: StoryInput
+#   topic: TopicInput
+#   theme: ThemeInput
+#   purchaseQuantity: PurchaseQuantityInput
+#   launches: [LaunchInput!]
+#   launchStatus: LaunchStatus
+#   _version: Int
+# }
 
 input ItemInput {
   id: ID!
