@@ -86,7 +86,7 @@ def get_launch_status(deal, now=None):
     ValueError
         Description
     """
-    if deal.get('soldOutAt', None):
+    if deal.get('soldOutAt'):
         return LaunchStatus.soldOut
 
     # Provide option to pass `now` for testing
@@ -149,8 +149,8 @@ def _diff_launches(current, update):
     """
     delta = {}
 
-    sold_out_at = update.get('soldOutAt', None)
-    if sold_out_at and sold_out_at != current.get('soldOutAt', None):
+    sold_out_at = update.get('soldOutAt')
+    if sold_out_at and sold_out_at != current.get('soldOutAt'):
         delta.update({'soldOutAt': sold_out_at})
 
     launches = update.get('launches', [])
@@ -192,7 +192,7 @@ def _diff_launch_status(current, delta, now=None):
 
     status = None
 
-    cs = current.get('launchStatus', None)
+    cs = current.get('launchStatus')
     try:
         cs = LaunchStatus[cs]
     except (TypeError, KeyError):
@@ -204,7 +204,7 @@ def _diff_launch_status(current, delta, now=None):
 
     dl = delta.get('launches', [])
 
-    if delta.get('soldOutAt', None):
+    if delta.get('soldOutAt'):
         status = LaunchStatus.soldOut
 
     # Changes to `launches`
@@ -310,29 +310,29 @@ def _diff_topic(current, update):
     """
     delta = {}
 
-    new_comment = updt_topic.get('commentCount', None)
-    if new_comment and new_comment != curr_topic.get('commentCount', None):
+    new_comment = updt_topic.get('commentCount')
+    if new_comment and new_comment != curr_topic.get('commentCount'):
         delta['commentCount'] = new_comment
 
-    new_reply = updt_topic.get('replyCount', None)
-    if new_reply and new_reply != curr_topic.get('replyCount', None):
+    new_reply = updt_topic.get('replyCount')
+    if new_reply and new_reply != curr_topic.get('replyCount'):
         delta['replyCount'] = new_reply
 
-    new_vote = updt_topic.get('voteCount', None)
-    if new_vote and new_vote != curr_topic.get('voteCount', None):
+    new_vote = updt_topic.get('voteCount')
+    if new_vote and new_vote != curr_topic.get('voteCount'):
         delta['voteCount'] = new_vote
 
     # If the following apply, they should all be additions, not changes
-    new_id = updt_topic.get('id', None)
-    if new_id and new_id != curr_topic.get('id', None):
+    new_id = updt_topic.get('id')
+    if new_id and new_id != curr_topic.get('id'):
         delta['id'] = new_id
 
-    new_url = updt_topic.get('url', None)
-    if new_url and new_url != curr_topic.get('url', None):
+    new_url = updt_topic.get('url')
+    if new_url and new_url != curr_topic.get('url'):
         delta['url'] = new_url
 
-    new_created = updt_topic.get('createdAt', None)
-    if new_created and new_created != curr_topic.get('createdAt', None):
+    new_created = updt_topic.get('createdAt')
+    if new_created and new_created != curr_topic.get('createdAt'):
         delta['createdAt'] = new_created
 
     if delta:
@@ -364,7 +364,7 @@ def _diff_deal_delta(delta):
     deal_delta = {}
 
     # TODO: should I really bother with conversion to Enums?
-    launch_status = delta.get('launchStatus', None)
+    launch_status = delta.get('launchStatus')
     if launch_status:
         # TODO: should we really need error handling here?
         try:
@@ -376,7 +376,7 @@ def _diff_deal_delta(delta):
             )
         deal_delta[DealDelta.launchStatus] = status
 
-    comment_count = delta.get('topic', {}).get('commentCount', None)
+    comment_count = delta.get('topic', {}).get('commentCount')
     if comment_count:
         deal_delta[DealDelta.commentCount] = comment_count
 

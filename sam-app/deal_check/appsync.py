@@ -42,8 +42,8 @@ class GraphQLError(Exception):
         self.locations = locations
         self.path = path
         # AppSync-specific attributes (not part of GraphQL spec)
-        self.error_type = kwargs.get('errorType', None)
-        self.error_info = kwargs.get('errorInfo', None)
+        self.error_type = kwargs.get('errorType')
+        self.error_info = kwargs.get('errorInfo')
 
 
 # Use this to wrap requests.exceptions.RequestException / GraphQLError?
@@ -72,7 +72,7 @@ DEAL_FRAGMENTS = {
 
 
 # TODO: create subclass for single operations and add parameter for operation
-# field; add property to return `data.get(op_field, None)`
+# field; add property to return `data.get(op_field)`
 class GraphQLResponse(object):
 
     def __init__(self, json_body):
@@ -80,8 +80,8 @@ class GraphQLResponse(object):
 
         # See: https://spec.graphql.org/June2018/#sec-Response
         self.errors = [GraphQLError(**e) for e in json_body.get('errors', [])]
-        self.data = json_body.get('data', None)
-        # self.extensions = json_body.get('extensions', None)
+        self.data = json_body.get('data')
+        # self.extensions = json_body.get('extensions')
 
     # def __repr__(self):
 
@@ -98,7 +98,7 @@ class GraphQLResponse(object):
         dict
             Value for data[field]
         """
-        return self.data.get(field, None)
+        return self.data.get(field)
 
     def raise_for_errors(self):
         """Raises AppSyncException if any errors occurred.
@@ -329,7 +329,7 @@ class AppSync(object):
         # `update` and `delete` mutation inputs must contain `id`
         if (
             mutation_type in ['delete', 'update']
-            and (input.get('id', None) is None)
+            and (input.get('id') is None)
         ):
             raise ValueError(
                 f'Mutation input for `{mutation_type}` mutation must contain `id`')  # noqa E501

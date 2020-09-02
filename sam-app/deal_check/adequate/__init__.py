@@ -90,8 +90,8 @@ def alert_message(deal):
 
 
 def delta_message(deal_id, delta):
-    comment_count = delta.get('topic', {}).get('commentCount', None)
-    launch_status = delta.get('launchStatus', None)
+    comment_count = delta.get('topic', {}).get('commentCount')
+    launch_status = delta.get('launchStatus')
 
     # TODO: add support for `multiple`
     # For now, prioritize launchStatus

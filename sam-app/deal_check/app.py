@@ -72,7 +72,7 @@ def replace_current_deal(local, remote):
 
     # 1. Create copy of current_deal with `dealID` as `id`
     local['id'] = local['dealID']
-    if local.get('launchStatus', None) != adequate.LaunchStatus.soldOut.name:
+    if local.get('launchStatus') != adequate.LaunchStatus.soldOut.name:
         local['launchStatus'] = adequate.LaunchStatus.expired.name
     local.pop('updatedAt', None)
     version = local.pop('_version', None)
@@ -100,7 +100,7 @@ def replace_current_deal(local, remote):
                    'dealID': remote_id,
                    'dealYear': created_at[:4],
                    'monthDay': created_at[5:7] + created_at[8:10],
-                   'soldOutAt': remote.get('soldOutAt', None),
+                   'soldOutAt': remote.get('soldOutAt'),
                    '_version': version})
 
     try:
@@ -215,7 +215,7 @@ def send_sns(session, topic_arn, content):
 
     # TODO: improve handling of Exception from missing message['delta_type']
     if message_type == 'delta':
-        delta_type = message.get('delta_type', None)
+        delta_type = message.get('delta_type')
         if delta_type not in ALLOWED_DELTA_TYPES:
             raise ValueError(
                 f"Invalid delta_type - Received '{delta_type}'. "
@@ -306,7 +306,7 @@ def lambda_handler(event, context):
         message = adequate.alert_message(update)
         # except ValueError as e:
 
-    elif update['id'] == current.get('dealID', None):
+    elif update['id'] == current.get('dealID'):
         logger.info('## Same Deal ...')
 
         delta = adequate.delta(current, update)
