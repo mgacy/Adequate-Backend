@@ -47,9 +47,14 @@ Parameters:
   GraphQlEndpoint:
     Type: String
     Description: AppSync Endpoint associated with this project
+  AlarmEmailParam:
+    Type: String
+    Description: Email address to which function alarms will be sent (Optional)
+    Default: ''
 
 Conditions:
   UseApnsSandbox: !Not [!Equals [ !Ref Environment, master ]]
+  SendAlarmNotification: !Not [!Equals [!Ref AlarmEmailParam, '']]
 
 Resources:
 
@@ -120,6 +125,38 @@ Resources:
           Properties:
             Topic: !Ref DealUpdateTopic
 
+  ErrorAlarmTopic:
+    Condition: SendAlarmNotification
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: DealCheckError
+
+  ErrorAlarmEmailSubscription:
+    Condition: SendAlarmNotification
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref ErrorAlarmTopic
+      Protocol: email
+      Endpoint: !Ref AlarmEmailParam
+
+  DealCheckErrorAlarm:
+    Condition: SendAlarmNotification
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      # AlarmDescription: 
+      AlarmActions:
+        - !Ref ErrorAlarmTopic
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref DealCheckFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: '1'
+
 Outputs:
   DealUpdateTopicOutput:
     Description: Lambda communication SNS Topic ARN
@@ -136,3 +173,13 @@ Outputs:
   NotificationFunctionOutput:
     Description: Notification Lambda Function ARN
     Value: !GetAtt NotificationFunction.Arn
+
+  ErrorAlarmTopicOutput:
+    Description: Error alarm SNS Topic ARN
+    Value: !Ref ErrorAlarmTopic
+    Condition: SendAlarmNotification
+
+  DealCheckErrorAlarmOutput:
+    Description: Lambda error CloudWatch Alarm ARN
+    Value: !GetAtt DealCheckErrorAlarm.Arn
+    Condition: SendAlarmNotification
