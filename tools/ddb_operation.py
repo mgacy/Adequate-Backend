@@ -420,7 +420,7 @@ def update_items_from_query(
             scan_resp = execute_query(table, query_input)
             items = scan_resp.get('Items', [])
             last_key = scan_resp.get('LastEvaluatedKey')
-            scan_count += 1
+            page_count += 1
         except ClientError as e:
             # TODO: how to handle?
             raise UpdateItemError(errors)
