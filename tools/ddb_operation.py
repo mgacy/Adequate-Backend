@@ -293,6 +293,65 @@ def execute_update_item(table, input):
 # -----------------------------------------------------------------------------
 # Update Table
 
+# TODO: add `permissive` (?) param to throw on first error so we don't waste
+# our time on a bad update?
+def update_items(
+    table, items, update_input_builder, hash_key='id', verbose=False
+):
+    """Update `items` using input returned from `update_input_builder`
+
+    Parameters
+    ----------
+    table : boto3.dynamodb.Table
+        DynamoDB table to update
+    items : list
+        Items in `table` to update
+    update_input_builder : (dict) -> dict
+        Function returning input for `update_item()` from a DynamoDB item
+    hash_key : str, optional
+        DynamoDB HASH key for items
+    verbose : bool, optional
+        Description
+
+    Returns
+    -------
+    dict
+        updated_count : Int
+            Number of items updated
+        errors : list
+            Item `hash_key`s that could not be updated
+    """
+    # TODO: use log rather than `print()
+    updated_count = 0
+    errors = []
+    for item in items:
+        if verbose:
+            print(f'Updating item {item.get(hash_key)} ...')
+        try:
+            update_input = update_input_builder(item)
+            execute_update_item(table, update_input)
+            updated_count += 1
+            # if verbose:
+            #     print(f"Successfully updated item '{item.get(hash_key)}'")
+        except ClientError as e:
+            # if verbose:
+            print(f"Error updating item '{item.get(hash_key)}': {e}")
+            errors.append(item.get(hash_key))
+        except ResponseStatusError as e:
+            # if verbose:
+            print(f"Error updating item '{item.get(hash_key)}': {e}")
+            errors.append(item.get(hash_key))
+        except BaseException as e:
+            # Handle any errors from `update_input_builder()`
+            print(f"Error updating item '{item.get(hash_key)}': {e}")
+            errors.append(item.get(hash_key)) 
+
+    return {
+        'updated_count': updated_count,
+        'errors': errors
+    }
+
+
 def update_items_from_scan(
     table, scan_input, update_input_builder, hash_key='id', verbose=False
 ):
@@ -349,22 +408,9 @@ def update_items_from_scan(
             raise UpdateItemError(errors)
 
         # Update items
-        for item in items:
-            if verbose:
-                print(f'Updating item {item.get(hash_key)} ...')
-            update_input = update_input_factory(item)
-
-            try:
-                execute_update_item(table, update_input)
-                updated_count += 1
-            except ClientError as e:
-                # if verbose:
-                print(f"Error updating item '{item.get(hash_key)}': {e}")
-                errors.append(item['id'])
-            except ResponseStatusError as e:
-                # if verbose:
-                print(f"Error updating item '{item.get(hash_key)}': {e}")
-                errors.append(item['id'])
+        r = update_items(table, items, update_input_builder, hash_key, verbose)
+        updated_count += r['updated_count']
+        errors += r['errors']
 
     # Finish
     if errors:
@@ -431,22 +477,9 @@ def update_items_from_query(
             raise UpdateItemError(errors)
 
         # Update items
-        for item in items:
-            if verbose:
-                print(f'Updating item {item.get(hash_key)} ...')
-            update_input = update_input_factory(item)
-
-            try:
-                execute_update_item(table, update_input)
-                updated_count += 1
-            except ClientError as e:
-                # if verbose:
-                print(f"Error updating item '{item.get(hash_key)}': {e}")
-                errors.append(item['id'])
-            except ResponseStatusError as e:
-                # if verbose:
-                print(f"Error updating item '{item.get(hash_key)}': {e}")
-                errors.append(item['id'])
+        r = update_items(table, items, update_input_builder, hash_key, verbose)
+        updated_count += r['updated_count']
+        errors += r['errors']
 
     # Finish
     if errors:
