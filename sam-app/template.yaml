@@ -5,7 +5,7 @@ Description: >
 
   Additional elements for Adequate Backend
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+# Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 5
@@ -94,7 +94,7 @@ Resources:
           TOPIC_ARN: !Ref DealUpdateTopic
       Events:
         Schedule1:
-          Type: Schedule
+          Type: Schedule # https://github.com/aws/serverless-application-model/blob/master/versions/2016-10-31.md#schedule
           Properties:
             Description: Schedule rule for deal_check Lambda 
             Schedule: cron(1/5 * * * ? *)
@@ -105,7 +105,7 @@ Resources:
       DisplayName: NewDealAPNs
 
   NotificationFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       Description: Send push notifications for new / updated deals via APNS
       CodeUri: push_notification/
@@ -121,7 +121,7 @@ Resources:
           APNS_CATEGORY: !Ref ApnsCategory
       Events:
         SNSEventSource:
-          Type: SNS # More info about SNS Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#sns
+          Type: SNS # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#sns
           Properties:
             Topic: !Ref DealUpdateTopic
 
@@ -175,7 +175,7 @@ Outputs:
     Value: !GetAtt NotificationFunction.Arn
 
   ErrorAlarmTopicOutput:
-    Description: Error alarm SNS Topic ARN
+    Description: Lambda error alarm SNS Topic ARN
     Value: !Ref ErrorAlarmTopic
     Condition: SendAlarmNotification
 
