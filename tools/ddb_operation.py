@@ -293,7 +293,7 @@ def execute_update_item(table, input):
 # -----------------------------------------------------------------------------
 # Update Table
 
-# TODO: add `permissive` (?) param to throw on first error so we don't waste
+# TODO: add `raise_errors` (?) param to throw on first error so we don't waste
 # our time on a bad update?
 def update_items(
     table, items, update_input_builder, hash_key='id', verbose=False
@@ -325,8 +325,6 @@ def update_items(
     updated_count = 0
     errors = []
     for item in items:
-        if verbose:
-            print(f'Updating item {item.get(hash_key)} ...')
         try:
             update_input = update_input_builder(item)
             execute_update_item(table, update_input)
@@ -334,17 +332,26 @@ def update_items(
             # if verbose:
             #     print(f"Successfully updated item '{item.get(hash_key)}'")
         except ClientError as e:
+            # if raise_errors:
+            #     raise e
+            # else:
+            errors.append(item.get(hash_key))
             # if verbose:
             print(f"Error updating item '{item.get(hash_key)}': {e}")
-            errors.append(item.get(hash_key))
         except ResponseStatusError as e:
+            # if raise_errors:
+            #     raise e
+            # else:
+            errors.append(item.get(hash_key))
             # if verbose:
             print(f"Error updating item '{item.get(hash_key)}': {e}")
-            errors.append(item.get(hash_key))
         except BaseException as e:
             # Handle any errors from `update_input_builder()`
-            print(f"Error updating item '{item.get(hash_key)}': {e}")
+            # if raise_errors:
+            #     raise e
+            # else:
             errors.append(item.get(hash_key)) 
+            print(f"Error updating item '{item.get(hash_key)}': {e}")
 
     return {
         'updated_count': updated_count,
@@ -406,11 +413,18 @@ def update_items_from_scan(
             raise UpdateItemError(errors)
         except BaseException as e:
             raise UpdateItemError(errors)
-
+        
+        if verbose:
+            print(f'Updating {len(items)} items ...')
+        
         # Update items
         r = update_items(table, items, update_input_builder, hash_key, verbose)
         updated_count += r['updated_count']
         errors += r['errors']
+
+        if verbose:
+            print(f"Updated {r['updated_count']} items with "
+                  f"{len(r['errors'])} errors\n")
 
     # Finish
     if errors:
@@ -476,10 +490,17 @@ def update_items_from_query(
         except BaseException as e:
             raise UpdateItemError(errors)
 
+        if verbose:
+            print(f'Updating {len(items)} items ...')
+
         # Update items
         r = update_items(table, items, update_input_builder, hash_key, verbose)
         updated_count += r['updated_count']
         errors += r['errors']
+
+        if verbose:
+            print(f"Updated {r['updated_count']} items with "
+                  f"{len(r['errors'])} errors\n")
 
     # Finish
     if errors:
