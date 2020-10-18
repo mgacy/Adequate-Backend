@@ -297,7 +297,7 @@ def update_items_from_scan(
     table, scan_input, update_input_builder, hash_key='id', verbose=False
 ):
     """Perform scan on `table` using `scan_input` and update returned items
-    using input returned from `update_input_builder
+    using input returned from `update_input_builder`
 
     Parameters
     ----------
@@ -306,7 +306,7 @@ def update_items_from_scan(
     scan_input : dict
         Input for `scan()`
     update_input_builder : (dict) -> dict
-        Function providing input for `update_item()`
+        Function returning input for `update_item()` from a DynamoDB item
     hash_key : str, optional
         DynamoDB HASH key for items
     verbose : bool, optional
@@ -322,6 +322,7 @@ def update_items_from_scan(
     UpdateItemError
         Description
     """
+    # TODO: use log rather than `print()`
     scan_count = 0
     last_key = True
     updated_count = 0
@@ -379,7 +380,7 @@ def update_items_from_query(
     table, query_input, update_input_builder, hash_key='id', verbose=False
 ):
     """Perform query on `table` using `query_input` and update returned items
-    using input returned from `update_input_builder
+    using input returned from `update_input_builder`
 
     Parameters
     ----------
@@ -388,7 +389,7 @@ def update_items_from_query(
     scan_input : dict
         Input for `query()`
     update_input_builder : (dict) -> dict
-        Function providing input for `update_item()`
+        Function returning input for `update_item()` from a DynamoDB item
     hash_key : str, optional
         DynamoDB HASH key for items
     verbose : bool, optional

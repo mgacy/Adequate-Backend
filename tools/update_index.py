@@ -1,3 +1,6 @@
+"""
+Update sparse index for AppSync Query.dealHistory
+"""
 import argparse
 import datetime as dt
 import decimal
