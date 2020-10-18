@@ -1,4 +1,6 @@
 from copy import deepcopy
+import json
+from pathlib import Path
 import unittest
 # from deal_check.adequate import meh
 from deal_check.adequate.meh import _fix_empty_array, _parse_creation_date, _parse_model_numbers, _parse_response
@@ -43,14 +45,23 @@ class MehTestCase(unittest.TestCase):
      'url': 'https://meh.com/deals/irobot-roomba-805-vacuum-cleaning-robot-refurbished-6'}
     """  # noqa E501
 
+    base_path = Path(__file__).parent
+    def_deal = 'meh_response_1.json'
+
     # def setUp(self):
 
     # def tearDown(self):
 
+    def load_deal(self, file):
+        path = (self.base_path / 'data' / file).resolve()
+        with open(path, 'r') as f:
+            file_contents = json.load(f)
+        return file_contents
+
     # Request
 
     # Creation Date
-    # def test_parse_creation_date(self):
+    # def test_created_at_X(self):
 
     # - Deal has topic.createdAt
     def test_created_at_has_topic_created_at(self):
@@ -117,19 +128,15 @@ class MehTestCase(unittest.TestCase):
         created_at = _parse_creation_date(response)
         self.assertIsNotNone(created_at)
 
-    # Composite Keys
-
-    # def test_parse_composite_keys(self):
-
     # Model Numbers
-
-    # def test__parse_model_numbers(self):
+    # def test_parse_model_numbers_X(self):
 
     # - Expected model numbers
 
     # - Missing model numbers
 
     # Empty Arrays
+    # def test_empty_array_X(self):
 
     def test_empty_array_not_empty_and_nullable(self):
         """Verify method does not alter non-empty, nullable list."""
@@ -214,5 +221,14 @@ class MehTestCase(unittest.TestCase):
         self.assertEqual(result, expected)
 
     # Parse Response
+    # def test_parse_response_X(self):
 
-    # def test_parse_response(self):
+    def test_parse_response_added_custom_attributes(self):
+        meh_response = self.load_deal(self.def_deal)
+
+        result = _parse_response(meh_response)
+
+        self.assertIsNotNone(result.get('dealID'))
+        self.assertIsNotNone(result.get('createdAt'))
+        # self.assertIsNotNone(result.get('model_numbers'))
+        self.assertIsNotNone(result.get('launchStatus'))

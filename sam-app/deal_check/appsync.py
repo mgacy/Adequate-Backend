@@ -7,22 +7,46 @@ v 0.1
 import json
 # from boto3.session import Session as AWSSession
 import requests
+# from requests.exceptions import RequestException
 from requests_aws4auth import AWS4Auth
 
 
+# TODO: add base exception and subclass to wrap requests exceptions
+# TODO: add separate exception for responses that are missing data
 # TODO: maybe look at graphql-core.
 class GraphQLError(Exception):
+    """GraphQL error.
+
+    https://spec.graphql.org/June2018/#sec-Errors
+
+    Attributes
+    ----------
+    error_info : TYPE
+        AppSync-specific attribute
+    error_type : TYPE
+        AppSync-specific attribute
+    locations : dict
+        Describes the beginning of an associated syntax element
+
+        line : int
+        column : int
+    message : str
+        Description of the error
+    path : list
+        Describes the path of the response field which experienced the error.
+    """
+
     def __init__(self, message, locations, path, **kwargs):
         super().__init__(message)
         self.message = message
         self.locations = locations
         self.path = path
         # AppSync-specific attributes (not part of GraphQL spec)
-        self.error_type = kwargs.get('errorType', None)
-        self.error_info = kwargs.get('errorInfo', None)
+        self.error_type = kwargs.get('errorType')
+        self.error_info = kwargs.get('errorInfo')
 
 
-# Use this to wrap equests.exceptions.RequestException / GraphQLError?
+# Use this to wrap requests.exceptions.RequestException / GraphQLError?
 class AppSyncException(Exception):
     def __init__(self, message, errors=None):
         super().__init__(message)
@@ -34,18 +58,21 @@ class AppSyncException(Exception):
 
 # Fragments on Deal for GraphQL selection sets
 DEAL_FRAGMENTS = {
-    'item': 'items { id attributes { key value } condition price photo } ',
-    'launches': 'launches { soldOutAt } ',
+    # Sets of fields
+    'base': 'id dealID features photos specifications title url ',
+    'update': '_lastChangedAt _version _deleted ',
+    # Nested types
+    'items': 'items { id attributes { key value } condition price photo } ',
+    'launches': 'launches { soldOutAt } soldOutAt ', # `soldOutAt` is closely related  # noqa E501
     'purchaseQuantity': 'purchaseQuantity { maximumLimit minimumLimit } ',
     'story': 'story { title body } ',
     'theme': 'theme { accentColor backgroundColor backgroundImage foreground } ',  # noqa E501
-    'topic': 'topic { id commentCount createdAt replyCount url voteCount } ',
-    'update': '_lastChangedAt _version _deleted ',
+    'topic': 'topic { id commentCount createdAt replyCount url voteCount } '
 }
 
 
 # TODO: create subclass for single operations and add parameter for operation
-# field; add property to return `data.get(op_field, None)`
+# field; add property to return `data.get(op_field)`
 class GraphQLResponse(object):
 
     def __init__(self, json_body):
@@ -53,8 +80,8 @@ class GraphQLResponse(object):
 
         # See: https://spec.graphql.org/June2018/#sec-Response
         self.errors = [GraphQLError(**e) for e in json_body.get('errors', [])]
-        self.data = json_body.get('data', None)
-        # self.extensions = json_body.get('extensions', None)
+        self.data = json_body.get('data')
+        # self.extensions = json_body.get('extensions')
 
     # def __repr__(self):
 
@@ -71,7 +98,7 @@ class GraphQLResponse(object):
         dict
             Value for data[field]
         """
-        return self.data.get(field, None)
+        return self.data.get(field)
 
     def raise_for_errors(self):
         """Raises AppSyncException if any errors occurred.
@@ -83,7 +110,7 @@ class GraphQLResponse(object):
         AppSyncException
             Response contained errors
         """
-        # TODO: improve error descriptions
+        # TODO: improve error descriptions; try to categorize different errors
         if self.errors:
             raise AppSyncException(message='There were GraphQL errors',
                                    errors=self.errors)
@@ -139,6 +166,7 @@ class AppSync(object):
             'Content-Type': 'application/json',
         }
         self.session = session
+        # TODO: why do we return the session?
         return session
 
     # -------------------------------------------------------------------------
@@ -184,6 +212,9 @@ class AppSync(object):
                                  selection_set)
         body = {'query': query, 'variables': {'id': id}}
         return self.execute(body)
+
+    # TODO: add `getDealList()`
+    # TODO: add `dealHistory()l`
 
     def create_deal(self, deal_input, selection_set=None):
         """Execute `createDeal` mutation and return result.
@@ -298,7 +329,7 @@ class AppSync(object):
         # `update` and `delete` mutation inputs must contain `id`
         if (
             mutation_type in ['delete', 'update']
-            and (input.get('id', None) is None)
+            and (input.get('id') is None)
         ):
             raise ValueError(
                 f'Mutation input for `{mutation_type}` mutation must contain `id`')  # noqa E501
@@ -376,12 +407,15 @@ class AppSync(object):
         requests.exceptions.RequestException
             Request failed
         """
+        # try:
         resp = self.session.request(
             url=self.url,
             method='POST',
             json=body
         )
-        # TODO: should we wrap requests.HTTPError in AppSyncException?
         resp.raise_for_status()
+        # TODO: wrap requests exceptions
+        # except RequestException as e:
+        #     raise X
         # FIXME: `json()` can raise `ValueError` for invalid json; handle that?
         return GraphQLResponse(resp.json())

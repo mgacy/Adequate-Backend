@@ -29,6 +29,7 @@ def meh(api_key):
     params = {'apikey': api_key}
     r = requests.get(MEH_ENDPOINT, params=params)
     r.raise_for_status()
+    # TODO: wrap requests exceptions
     return _parse_response(r.json())
 
 
@@ -65,8 +66,8 @@ def alert_message(deal):
         raise ValueError(f"Malformed deal - Missing key '{str(e)}'")
 
     # TODO: handle potential TypeError for `prices`?
-    min_price = min(prices) * min_quantity * 0.1
-    max_price = max(prices) * min_quantity * 0.1
+    min_price = min(prices) * min_quantity # * 0.1
+    max_price = max(prices) * min_quantity # * 0.1
     # TODO: verify prices are actually integers before specifying formatting?
     # TODO: do we need to convert to float?
     # TODO: simply send array of prices and let other lambda deal with formatting?
@@ -88,14 +89,9 @@ def alert_message(deal):
     }
 
 
-def delta_message(delta):
-    try:
-        deal_id = delta['id']
-    except KeyError as e:
-        raise ValueError(f"Malformed delta - Missing key '{str(e)}'")
-
-    comment_count = delta.get('topic', {}).get('commentCount', None)
-    launch_status = delta.get('launchStatus', None)
+def delta_message(deal_id, delta):
+    comment_count = delta.get('topic', {}).get('commentCount')
+    launch_status = delta.get('launchStatus')
 
     # TODO: add support for `multiple`
     # For now, prioritize launchStatus

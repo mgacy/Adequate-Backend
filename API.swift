@@ -5,7 +5,7 @@ import AWSAppSync
 public struct CreateDealInput: GraphQLMapConvertible {
   public var graphQLMap: GraphQLMap
 
-  public init(id: GraphQLID? = nil, dealId: GraphQLID? = nil, title: String, features: String, specifications: String, url: String, createdAt: String? = nil, endDate: String? = nil, soldOutAt: String? = nil, items: [ItemInput], modelNumbers: [String]? = nil, photos: [String], story: StoryInput? = nil, topic: TopicInput? = nil, theme: ThemeInput, purchaseQuantity: PurchaseQuantityInput? = nil, launches: [LaunchInput]? = nil, launchStatus: LaunchStatus, version: Int? = nil) {
+  public init(id: GraphQLID? = nil, dealId: GraphQLID, title: String, features: String, specifications: String, url: String, createdAt: String? = nil, endDate: String? = nil, soldOutAt: String? = nil, items: [ItemInput], modelNumbers: [String]? = nil, photos: [String], story: StoryInput? = nil, topic: TopicInput? = nil, theme: ThemeInput, purchaseQuantity: PurchaseQuantityInput? = nil, launches: [LaunchInput]? = nil, launchStatus: LaunchStatus, version: Int? = nil) {
     graphQLMap = ["id": id, "dealID": dealId, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items, "modelNumbers": modelNumbers, "photos": photos, "story": story, "topic": topic, "theme": theme, "purchaseQuantity": purchaseQuantity, "launches": launches, "launchStatus": launchStatus, "_version": version]
   }
 
@@ -18,9 +18,9 @@ public struct CreateDealInput: GraphQLMapConvertible {
     }
   }
 
-  public var dealId: GraphQLID? {
+  public var dealId: GraphQLID {
     get {
-      return graphQLMap["dealID"] as! GraphQLID?
+      return graphQLMap["dealID"] as! GraphQLID
     }
     set {
       graphQLMap.updateValue(newValue, forKey: "dealID")
@@ -2004,7 +2004,7 @@ public final class CreateDealMutation: GraphQLMutation {
       public static let selections: [GraphQLSelection] = [
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
-        GraphQLField("dealID", type: .scalar(GraphQLID.self)),
+        GraphQLField("dealID", type: .nonNull(.scalar(GraphQLID.self))),
         GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
         GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
         GraphQLField("title", type: .nonNull(.scalar(String.self))),
@@ -2035,7 +2035,7 @@ public final class CreateDealMutation: GraphQLMutation {
         self.snapshot = snapshot
       }
 
-      public init(id: GraphQLID, dealId: GraphQLID? = nil, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
+      public init(id: GraphQLID, dealId: GraphQLID, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
         self.init(snapshot: ["__typename": "Deal", "id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items.map { $0.snapshot }, "modelNumbers": modelNumbers, "photos": photos, "story": story.flatMap { $0.snapshot }, "topic": topic.flatMap { $0.snapshot }, "theme": theme.snapshot, "purchaseQuantity": purchaseQuantity.flatMap { $0.snapshot }, "launches": launches.flatMap { $0.map { $0.snapshot } }, "launchStatus": launchStatus, "_version": version, "_deleted": deleted, "_lastChangedAt": lastChangedAt, "updatedAt": updatedAt])
       }
 
@@ -2057,9 +2057,9 @@ public final class CreateDealMutation: GraphQLMutation {
         }
       }
 
-      public var dealId: GraphQLID? {
+      public var dealId: GraphQLID {
         get {
-          return snapshot["dealID"] as? GraphQLID
+          return snapshot["dealID"]! as! GraphQLID
         }
         set {
           snapshot.updateValue(newValue, forKey: "dealID")
@@ -2724,7 +2724,7 @@ public final class UpdateDealMutation: GraphQLMutation {
       public static let selections: [GraphQLSelection] = [
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
-        GraphQLField("dealID", type: .scalar(GraphQLID.self)),
+        GraphQLField("dealID", type: .nonNull(.scalar(GraphQLID.self))),
         GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
         GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
         GraphQLField("title", type: .nonNull(.scalar(String.self))),
@@ -2755,7 +2755,7 @@ public final class UpdateDealMutation: GraphQLMutation {
         self.snapshot = snapshot
       }
 
-      public init(id: GraphQLID, dealId: GraphQLID? = nil, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
+      public init(id: GraphQLID, dealId: GraphQLID, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
         self.init(snapshot: ["__typename": "Deal", "id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items.map { $0.snapshot }, "modelNumbers": modelNumbers, "photos": photos, "story": story.flatMap { $0.snapshot }, "topic": topic.flatMap { $0.snapshot }, "theme": theme.snapshot, "purchaseQuantity": purchaseQuantity.flatMap { $0.snapshot }, "launches": launches.flatMap { $0.map { $0.snapshot } }, "launchStatus": launchStatus, "_version": version, "_deleted": deleted, "_lastChangedAt": lastChangedAt, "updatedAt": updatedAt])
       }
 
@@ -2777,9 +2777,9 @@ public final class UpdateDealMutation: GraphQLMutation {
         }
       }
 
-      public var dealId: GraphQLID? {
+      public var dealId: GraphQLID {
         get {
-          return snapshot["dealID"] as? GraphQLID
+          return snapshot["dealID"]! as! GraphQLID
         }
         set {
           snapshot.updateValue(newValue, forKey: "dealID")
@@ -3444,7 +3444,7 @@ public final class DeleteDealMutation: GraphQLMutation {
       public static let selections: [GraphQLSelection] = [
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
-        GraphQLField("dealID", type: .scalar(GraphQLID.self)),
+        GraphQLField("dealID", type: .nonNull(.scalar(GraphQLID.self))),
         GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
         GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
         GraphQLField("title", type: .nonNull(.scalar(String.self))),
@@ -3475,7 +3475,7 @@ public final class DeleteDealMutation: GraphQLMutation {
         self.snapshot = snapshot
       }
 
-      public init(id: GraphQLID, dealId: GraphQLID? = nil, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
+      public init(id: GraphQLID, dealId: GraphQLID, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
         self.init(snapshot: ["__typename": "Deal", "id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items.map { $0.snapshot }, "modelNumbers": modelNumbers, "photos": photos, "story": story.flatMap { $0.snapshot }, "topic": topic.flatMap { $0.snapshot }, "theme": theme.snapshot, "purchaseQuantity": purchaseQuantity.flatMap { $0.snapshot }, "launches": launches.flatMap { $0.map { $0.snapshot } }, "launchStatus": launchStatus, "_version": version, "_deleted": deleted, "_lastChangedAt": lastChangedAt, "updatedAt": updatedAt])
       }
 
@@ -3497,9 +3497,9 @@ public final class DeleteDealMutation: GraphQLMutation {
         }
       }
 
-      public var dealId: GraphQLID? {
+      public var dealId: GraphQLID {
         get {
-          return snapshot["dealID"] as? GraphQLID
+          return snapshot["dealID"]! as! GraphQLID
         }
         set {
           snapshot.updateValue(newValue, forKey: "dealID")
@@ -4568,7 +4568,7 @@ public final class SyncDealsQuery: GraphQLQuery {
         public static let selections: [GraphQLSelection] = [
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
-          GraphQLField("dealID", type: .scalar(GraphQLID.self)),
+          GraphQLField("dealID", type: .nonNull(.scalar(GraphQLID.self))),
           GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
           GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
           GraphQLField("title", type: .nonNull(.scalar(String.self))),
@@ -4599,7 +4599,7 @@ public final class SyncDealsQuery: GraphQLQuery {
           self.snapshot = snapshot
         }
 
-        public init(id: GraphQLID, dealId: GraphQLID? = nil, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
+        public init(id: GraphQLID, dealId: GraphQLID, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
           self.init(snapshot: ["__typename": "Deal", "id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items.map { $0.snapshot }, "modelNumbers": modelNumbers, "photos": photos, "story": story.flatMap { $0.snapshot }, "topic": topic.flatMap { $0.snapshot }, "theme": theme.snapshot, "purchaseQuantity": purchaseQuantity.flatMap { $0.snapshot }, "launches": launches.flatMap { $0.map { $0.snapshot } }, "launchStatus": launchStatus, "_version": version, "_deleted": deleted, "_lastChangedAt": lastChangedAt, "updatedAt": updatedAt])
         }
 
@@ -4621,9 +4621,9 @@ public final class SyncDealsQuery: GraphQLQuery {
           }
         }
 
-        public var dealId: GraphQLID? {
+        public var dealId: GraphQLID {
           get {
-            return snapshot["dealID"] as? GraphQLID
+            return snapshot["dealID"]! as! GraphQLID
           }
           set {
             snapshot.updateValue(newValue, forKey: "dealID")
@@ -5230,7 +5230,7 @@ public final class GetDealQuery: GraphQLQuery {
       public static let selections: [GraphQLSelection] = [
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
-        GraphQLField("dealID", type: .scalar(GraphQLID.self)),
+        GraphQLField("dealID", type: .nonNull(.scalar(GraphQLID.self))),
         GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
         GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
         GraphQLField("title", type: .nonNull(.scalar(String.self))),
@@ -5261,7 +5261,7 @@ public final class GetDealQuery: GraphQLQuery {
         self.snapshot = snapshot
       }
 
-      public init(id: GraphQLID, dealId: GraphQLID? = nil, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
+      public init(id: GraphQLID, dealId: GraphQLID, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
         self.init(snapshot: ["__typename": "Deal", "id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items.map { $0.snapshot }, "modelNumbers": modelNumbers, "photos": photos, "story": story.flatMap { $0.snapshot }, "topic": topic.flatMap { $0.snapshot }, "theme": theme.snapshot, "purchaseQuantity": purchaseQuantity.flatMap { $0.snapshot }, "launches": launches.flatMap { $0.map { $0.snapshot } }, "launchStatus": launchStatus, "_version": version, "_deleted": deleted, "_lastChangedAt": lastChangedAt, "updatedAt": updatedAt])
       }
 
@@ -5283,9 +5283,9 @@ public final class GetDealQuery: GraphQLQuery {
         }
       }
 
-      public var dealId: GraphQLID? {
+      public var dealId: GraphQLID {
         get {
-          return snapshot["dealID"] as? GraphQLID
+          return snapshot["dealID"]! as! GraphQLID
         }
         set {
           snapshot.updateValue(newValue, forKey: "dealID")
@@ -6008,7 +6008,7 @@ public final class ListDealsQuery: GraphQLQuery {
         public static let selections: [GraphQLSelection] = [
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
-          GraphQLField("dealID", type: .scalar(GraphQLID.self)),
+          GraphQLField("dealID", type: .nonNull(.scalar(GraphQLID.self))),
           GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
           GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
           GraphQLField("title", type: .nonNull(.scalar(String.self))),
@@ -6039,7 +6039,7 @@ public final class ListDealsQuery: GraphQLQuery {
           self.snapshot = snapshot
         }
 
-        public init(id: GraphQLID, dealId: GraphQLID? = nil, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
+        public init(id: GraphQLID, dealId: GraphQLID, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
           self.init(snapshot: ["__typename": "Deal", "id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items.map { $0.snapshot }, "modelNumbers": modelNumbers, "photos": photos, "story": story.flatMap { $0.snapshot }, "topic": topic.flatMap { $0.snapshot }, "theme": theme.snapshot, "purchaseQuantity": purchaseQuantity.flatMap { $0.snapshot }, "launches": launches.flatMap { $0.map { $0.snapshot } }, "launchStatus": launchStatus, "_version": version, "_deleted": deleted, "_lastChangedAt": lastChangedAt, "updatedAt": updatedAt])
         }
 
@@ -6061,9 +6061,9 @@ public final class ListDealsQuery: GraphQLQuery {
           }
         }
 
-        public var dealId: GraphQLID? {
+        public var dealId: GraphQLID {
           get {
-            return snapshot["dealID"] as? GraphQLID
+            return snapshot["dealID"]! as! GraphQLID
           }
           set {
             snapshot.updateValue(newValue, forKey: "dealID")
@@ -6736,7 +6736,7 @@ public final class DealsForPeriodQuery: GraphQLQuery {
         public static let selections: [GraphQLSelection] = [
           GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
           GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
-          GraphQLField("dealID", type: .scalar(GraphQLID.self)),
+          GraphQLField("dealID", type: .nonNull(.scalar(GraphQLID.self))),
           GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
           GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
           GraphQLField("title", type: .nonNull(.scalar(String.self))),
@@ -6767,7 +6767,7 @@ public final class DealsForPeriodQuery: GraphQLQuery {
           self.snapshot = snapshot
         }
 
-        public init(id: GraphQLID, dealId: GraphQLID? = nil, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
+        public init(id: GraphQLID, dealId: GraphQLID, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
           self.init(snapshot: ["__typename": "Deal", "id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items.map { $0.snapshot }, "modelNumbers": modelNumbers, "photos": photos, "story": story.flatMap { $0.snapshot }, "topic": topic.flatMap { $0.snapshot }, "theme": theme.snapshot, "purchaseQuantity": purchaseQuantity.flatMap { $0.snapshot }, "launches": launches.flatMap { $0.map { $0.snapshot } }, "launchStatus": launchStatus, "_version": version, "_deleted": deleted, "_lastChangedAt": lastChangedAt, "updatedAt": updatedAt])
         }
 
@@ -6789,9 +6789,9 @@ public final class DealsForPeriodQuery: GraphQLQuery {
           }
         }
 
-        public var dealId: GraphQLID? {
+        public var dealId: GraphQLID {
           get {
-            return snapshot["dealID"] as? GraphQLID
+            return snapshot["dealID"]! as! GraphQLID
           }
           set {
             snapshot.updateValue(newValue, forKey: "dealID")
@@ -7391,7 +7391,7 @@ public final class OnCreateDealSubscription: GraphQLSubscription {
       public static let selections: [GraphQLSelection] = [
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
-        GraphQLField("dealID", type: .scalar(GraphQLID.self)),
+        GraphQLField("dealID", type: .nonNull(.scalar(GraphQLID.self))),
         GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
         GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
         GraphQLField("title", type: .nonNull(.scalar(String.self))),
@@ -7422,7 +7422,7 @@ public final class OnCreateDealSubscription: GraphQLSubscription {
         self.snapshot = snapshot
       }
 
-      public init(id: GraphQLID, dealId: GraphQLID? = nil, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
+      public init(id: GraphQLID, dealId: GraphQLID, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
         self.init(snapshot: ["__typename": "Deal", "id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items.map { $0.snapshot }, "modelNumbers": modelNumbers, "photos": photos, "story": story.flatMap { $0.snapshot }, "topic": topic.flatMap { $0.snapshot }, "theme": theme.snapshot, "purchaseQuantity": purchaseQuantity.flatMap { $0.snapshot }, "launches": launches.flatMap { $0.map { $0.snapshot } }, "launchStatus": launchStatus, "_version": version, "_deleted": deleted, "_lastChangedAt": lastChangedAt, "updatedAt": updatedAt])
       }
 
@@ -7444,9 +7444,9 @@ public final class OnCreateDealSubscription: GraphQLSubscription {
         }
       }
 
-      public var dealId: GraphQLID? {
+      public var dealId: GraphQLID {
         get {
-          return snapshot["dealID"] as? GraphQLID
+          return snapshot["dealID"]! as! GraphQLID
         }
         set {
           snapshot.updateValue(newValue, forKey: "dealID")
@@ -8102,7 +8102,7 @@ public final class OnUpdateDealSubscription: GraphQLSubscription {
       public static let selections: [GraphQLSelection] = [
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
-        GraphQLField("dealID", type: .scalar(GraphQLID.self)),
+        GraphQLField("dealID", type: .nonNull(.scalar(GraphQLID.self))),
         GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
         GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
         GraphQLField("title", type: .nonNull(.scalar(String.self))),
@@ -8133,7 +8133,7 @@ public final class OnUpdateDealSubscription: GraphQLSubscription {
         self.snapshot = snapshot
       }
 
-      public init(id: GraphQLID, dealId: GraphQLID? = nil, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
+      public init(id: GraphQLID, dealId: GraphQLID, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
         self.init(snapshot: ["__typename": "Deal", "id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items.map { $0.snapshot }, "modelNumbers": modelNumbers, "photos": photos, "story": story.flatMap { $0.snapshot }, "topic": topic.flatMap { $0.snapshot }, "theme": theme.snapshot, "purchaseQuantity": purchaseQuantity.flatMap { $0.snapshot }, "launches": launches.flatMap { $0.map { $0.snapshot } }, "launchStatus": launchStatus, "_version": version, "_deleted": deleted, "_lastChangedAt": lastChangedAt, "updatedAt": updatedAt])
       }
 
@@ -8155,9 +8155,9 @@ public final class OnUpdateDealSubscription: GraphQLSubscription {
         }
       }
 
-      public var dealId: GraphQLID? {
+      public var dealId: GraphQLID {
         get {
-          return snapshot["dealID"] as? GraphQLID
+          return snapshot["dealID"]! as! GraphQLID
         }
         set {
           snapshot.updateValue(newValue, forKey: "dealID")
@@ -8813,7 +8813,7 @@ public final class OnDeleteDealSubscription: GraphQLSubscription {
       public static let selections: [GraphQLSelection] = [
         GraphQLField("__typename", type: .nonNull(.scalar(String.self))),
         GraphQLField("id", type: .nonNull(.scalar(GraphQLID.self))),
-        GraphQLField("dealID", type: .scalar(GraphQLID.self)),
+        GraphQLField("dealID", type: .nonNull(.scalar(GraphQLID.self))),
         GraphQLField("dealYear", type: .nonNull(.scalar(String.self))),
         GraphQLField("monthDay", type: .nonNull(.scalar(String.self))),
         GraphQLField("title", type: .nonNull(.scalar(String.self))),
@@ -8844,7 +8844,7 @@ public final class OnDeleteDealSubscription: GraphQLSubscription {
         self.snapshot = snapshot
       }
 
-      public init(id: GraphQLID, dealId: GraphQLID? = nil, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
+      public init(id: GraphQLID, dealId: GraphQLID, dealYear: String, monthDay: String, title: String, features: String, specifications: String, url: String, createdAt: String, endDate: String? = nil, soldOutAt: String? = nil, items: [Item], modelNumbers: [String]? = nil, photos: [String], story: Story? = nil, topic: Topic? = nil, theme: Theme, purchaseQuantity: PurchaseQuantity? = nil, launches: [Launch]? = nil, launchStatus: LaunchStatus, version: Int, deleted: Bool? = nil, lastChangedAt: Int, updatedAt: String) {
         self.init(snapshot: ["__typename": "Deal", "id": id, "dealID": dealId, "dealYear": dealYear, "monthDay": monthDay, "title": title, "features": features, "specifications": specifications, "url": url, "createdAt": createdAt, "endDate": endDate, "soldOutAt": soldOutAt, "items": items.map { $0.snapshot }, "modelNumbers": modelNumbers, "photos": photos, "story": story.flatMap { $0.snapshot }, "topic": topic.flatMap { $0.snapshot }, "theme": theme.snapshot, "purchaseQuantity": purchaseQuantity.flatMap { $0.snapshot }, "launches": launches.flatMap { $0.map { $0.snapshot } }, "launchStatus": launchStatus, "_version": version, "_deleted": deleted, "_lastChangedAt": lastChangedAt, "updatedAt": updatedAt])
       }
 
@@ -8866,9 +8866,9 @@ public final class OnDeleteDealSubscription: GraphQLSubscription {
         }
       }
 
-      public var dealId: GraphQLID? {
+      public var dealId: GraphQLID {
         get {
-          return snapshot["dealID"] as? GraphQLID
+          return snapshot["dealID"]! as! GraphQLID
         }
         set {
           snapshot.updateValue(newValue, forKey: "dealID")
