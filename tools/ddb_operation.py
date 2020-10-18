@@ -293,11 +293,77 @@ def execute_update_item(table, input):
 # -----------------------------------------------------------------------------
 # Update Table
 
+# TODO: add `raise_errors` (?) param to throw on first error so we don't waste
+# our time on a bad update?
+def update_items(
+    table, items, update_input_builder, hash_key='id', verbose=False
+):
+    """Update `items` using input returned from `update_input_builder`
+
+    Parameters
+    ----------
+    table : boto3.dynamodb.Table
+        DynamoDB table to update
+    items : list
+        Items in `table` to update
+    update_input_builder : (dict) -> dict
+        Function returning input for `update_item()` from a DynamoDB item
+    hash_key : str, optional
+        DynamoDB HASH key for items
+    verbose : bool, optional
+        Description
+
+    Returns
+    -------
+    dict
+        updated_count : Int
+            Number of items updated
+        errors : list
+            Item `hash_key`s that could not be updated
+    """
+    # TODO: use log rather than `print()
+    updated_count = 0
+    errors = []
+    for item in items:
+        try:
+            update_input = update_input_builder(item)
+            execute_update_item(table, update_input)
+            updated_count += 1
+            # if verbose:
+            #     print(f"Successfully updated item '{item.get(hash_key)}'")
+        except ClientError as e:
+            # if raise_errors:
+            #     raise e
+            # else:
+            errors.append(item.get(hash_key))
+            # if verbose:
+            print(f"Error updating item '{item.get(hash_key)}': {e}")
+        except ResponseStatusError as e:
+            # if raise_errors:
+            #     raise e
+            # else:
+            errors.append(item.get(hash_key))
+            # if verbose:
+            print(f"Error updating item '{item.get(hash_key)}': {e}")
+        except BaseException as e:
+            # Handle any errors from `update_input_builder()`
+            # if raise_errors:
+            #     raise e
+            # else:
+            errors.append(item.get(hash_key)) 
+            print(f"Error updating item '{item.get(hash_key)}': {e}")
+
+    return {
+        'updated_count': updated_count,
+        'errors': errors
+    }
+
+
 def update_items_from_scan(
     table, scan_input, update_input_builder, hash_key='id', verbose=False
 ):
     """Perform scan on `table` using `scan_input` and update returned items
-    using input returned from `update_input_builder
+    using input returned from `update_input_builder`
 
     Parameters
     ----------
@@ -306,7 +372,7 @@ def update_items_from_scan(
     scan_input : dict
         Input for `scan()`
     update_input_builder : (dict) -> dict
-        Function providing input for `update_item()`
+        Function returning input for `update_item()` from a DynamoDB item
     hash_key : str, optional
         DynamoDB HASH key for items
     verbose : bool, optional
@@ -322,6 +388,7 @@ def update_items_from_scan(
     UpdateItemError
         Description
     """
+    # TODO: use log rather than `print()`
     scan_count = 0
     last_key = True
     updated_count = 0
@@ -346,24 +413,18 @@ def update_items_from_scan(
             raise UpdateItemError(errors)
         except BaseException as e:
             raise UpdateItemError(errors)
-
+        
+        if verbose:
+            print(f'Updating {len(items)} items ...')
+        
         # Update items
-        for item in items:
-            if verbose:
-                print(f'Updating item {item.get(hash_key)} ...')
-            update_input = update_input_factory(item)
+        r = update_items(table, items, update_input_builder, hash_key, verbose)
+        updated_count += r['updated_count']
+        errors += r['errors']
 
-            try:
-                execute_update_item(table, update_input)
-                updated_count += 1
-            except ClientError as e:
-                # if verbose:
-                print(f"Error updating item '{item.get(hash_key)}': {e}")
-                errors.append(item['id'])
-            except ResponseStatusError as e:
-                # if verbose:
-                print(f"Error updating item '{item.get(hash_key)}': {e}")
-                errors.append(item['id'])
+        if verbose:
+            print(f"Updated {r['updated_count']} items with "
+                  f"{len(r['errors'])} errors\n")
 
     # Finish
     if errors:
@@ -379,7 +440,7 @@ def update_items_from_query(
     table, query_input, update_input_builder, hash_key='id', verbose=False
 ):
     """Perform query on `table` using `query_input` and update returned items
-    using input returned from `update_input_builder
+    using input returned from `update_input_builder`
 
     Parameters
     ----------
@@ -388,7 +449,7 @@ def update_items_from_query(
     scan_input : dict
         Input for `query()`
     update_input_builder : (dict) -> dict
-        Function providing input for `update_item()`
+        Function returning input for `update_item()` from a DynamoDB item
     hash_key : str, optional
         DynamoDB HASH key for items
     verbose : bool, optional
@@ -419,7 +480,7 @@ def update_items_from_query(
             scan_resp = execute_query(table, query_input)
             items = scan_resp.get('Items', [])
             last_key = scan_resp.get('LastEvaluatedKey')
-            scan_count += 1
+            page_count += 1
         except ClientError as e:
             # TODO: how to handle?
             raise UpdateItemError(errors)
@@ -429,23 +490,17 @@ def update_items_from_query(
         except BaseException as e:
             raise UpdateItemError(errors)
 
-        # Update items
-        for item in items:
-            if verbose:
-                print(f'Updating item {item.get(hash_key)} ...')
-            update_input = update_input_factory(item)
+        if verbose:
+            print(f'Updating {len(items)} items ...')
 
-            try:
-                execute_update_item(table, update_input)
-                updated_count += 1
-            except ClientError as e:
-                # if verbose:
-                print(f"Error updating item '{item.get(hash_key)}': {e}")
-                errors.append(item['id'])
-            except ResponseStatusError as e:
-                # if verbose:
-                print(f"Error updating item '{item.get(hash_key)}': {e}")
-                errors.append(item['id'])
+        # Update items
+        r = update_items(table, items, update_input_builder, hash_key, verbose)
+        updated_count += r['updated_count']
+        errors += r['errors']
+
+        if verbose:
+            print(f"Updated {r['updated_count']} items with "
+                  f"{len(r['errors'])} errors\n")
 
     # Finish
     if errors:

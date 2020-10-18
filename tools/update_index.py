@@ -1,3 +1,6 @@
+"""
+Update sparse index for AppSync Query.dealHistory
+"""
 import argparse
 import datetime as dt
 import decimal
@@ -11,8 +14,8 @@ from botocore.exceptions import ClientError
 from ddb_operation import UpdateItemError
 from ddb_operation import ResponseStatusError
 from ddb_operation import execute_query
-from ddb_operation import execute_update_item
 from ddb_operation import raise_for_status
+from ddb_operation import update_items
 from tz_support import Eastern
 
 DATE_INDEX_NAME = 'byYearMonthDate'
@@ -149,50 +152,6 @@ def get_deal_history(table, index_name, period_length=30):
     return items
 
 
-def update_items(table, items, update_input_factory):
-    """[summary]
-
-    Parameters
-    ----------
-    table : boto3.dynamodb.Table
-        DynamoDB table to update
-    items : list
-        [description]
-    update_input_factory : (dict) -> dict
-        Function returning args for `Table.update_item()` from a DynamoDB
-        item
-
-    Raises
-    ------
-    botocore.exceptions.ClientError
-        Request failed
-    UpdateItemError
-        Update of some items failed
-    """
-    errors = []
-    updated_count = 0
-    for item in items:
-        try:
-            update_input = create_update_item_input(item)
-            resp = execute_update_item(table, update_input)
-            # if verbose:
-            # print(f"Successfully updated item '{item['id']}'")
-            updated_count += 1
-        except ClientError as e:
-            print(f"Error updating item '{item['id']}': {e}")
-            errors.append(item['id'])
-        except ResponseStatusError as e:
-            print(f"Error updating item '{item['id']}': {e}")
-            errors.append(item['id'])
-
-    if errors:
-        print(f'Finished updating {updated_count} items; unable to update: {errors}')
-        # raise UpdateItemError(errors)
-        # return errors
-    else:
-        print(f'Finished updating {updated_count} items')
-
-
 # -----------------------------------------------------------------------------
 # CLI
 
@@ -223,10 +182,15 @@ def main():
 
     # print(f'Updating deals for {deal_dates} ...')
     print(f'Updating {len(deal_dates)} deals ...')
-    # try:
-    update_items(table, deals, create_update_item_input)
-    # except ClientError as e:
-    # except ResponseStatusError as e:
+    r = update_items(table, deals, create_update_item_input, 'id', True)
+    updated_count = r['updated_count']
+    errors = r['errors']
+
+    # TODO: create record of failed updates?
+    if errors:
+        print(f'Finished updating {updated_count} items; unable to update: {errors}')
+    else:
+        print(f'Finished updating {updated_count} items')
 
 
 if __name__ == '__main__':

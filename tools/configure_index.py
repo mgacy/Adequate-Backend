@@ -1,3 +1,6 @@
+"""
+Create GSI in DynamoDB Deal table for AppSync Query.dealQuery.
+"""
 import argparse
 # import logging
 import os
@@ -68,6 +71,7 @@ def check_gsi_exists(client, table_name, index_name):
 
 
 # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.update_table
+# TODO: make generic by passing `KeySchema`
 def create_gsi(client, table_name, index_name,
                read_units=None, write_units=None):
     """Create new GSI for DynamoDB table

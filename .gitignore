@@ -18,6 +18,9 @@ amplifytools.xcconfig
 amplify/team-provider-info.json
 .envrc
 
+# Other
+/tools/migrations
+
 # Created by https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode
 
 ### Linux ###
