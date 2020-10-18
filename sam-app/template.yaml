@@ -97,7 +97,7 @@ Resources:
           Type: Schedule
           Properties:
             Description: Schedule rule for deal_check Lambda 
-            Schedule: cron(1/10 * * * ? *)
+            Schedule: cron(1/5 * * * ? *)
 
   DealNotificationTopic:
     Type: AWS::SNS::Topic
