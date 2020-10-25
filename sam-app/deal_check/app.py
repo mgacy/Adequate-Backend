@@ -117,7 +117,11 @@ def replace_current_deal(local, remote):
             f'\nDeal: {json.dumps(remote, indent=2)}'
         )
         raise e
-
+    except BaseException as e:
+        logger.exception(
+            f'## Unexpected error while trying to replace curren_deal: {e}'
+        )
+        raise e
     return r2
 
 
@@ -146,11 +150,20 @@ def handle_copy_error(deal, error):
                 f"{e.message} - {e.errors}"
             )
             raise e
+        # except BaseException as e:
 
-        # If copy of deal already exists,
+        # Check if copy of deal already exists ...
         existing = r.get('getDeal')
-        # TODO: add support to specify selection set so we don't need to do this
-        existing.pop('_version', None)
+        if not existing:
+            # TODO: improve message
+            logger.exception(
+                f"## Unable to recover from error copying current_deal; Deal"
+                f"'{deal['id']} does not exist in db"
+            )
+            raise error
+
+        # TODO: support passing selection set so we don't need to do this
+        [existing.pop(k, None) for k in ['_version', 'topic']]
 
         if existing == deal:
             logger.info(
