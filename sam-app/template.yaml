@@ -61,14 +61,42 @@ Resources:
   DealUpdateTopic:
     Type: AWS::SNS::Topic
     Properties:
-      # If you specify a `TopicName`, you can't perform updates that require replacement of this resource
+      # Specifying a `TopicName` prevents updates that require replacement of this resource
       DisplayName: NewDealTopic
 
   S3Bucket:
     Type: AWS::S3::Bucket
+    DependsOn: S3ErrorAlarmPolicy
     DeletionPolicy: Retain # Deletion fails for buckets that have contents
-    # Properties:
-      # If you specify a `BucketName`, you can't perform updates that require replacement of this resource 
+    Properties:
+      # Specifying a `BucketName` prevents updates that require replacement of this resource
+      # However, without it, you can't add notification in the same template
+      # https://aws.amazon.com/premiumsupport/knowledge-center/unable-validate-destination-s3/
+      BucketName: !Sub '${BaseName}-storage-${Environment}'
+      NotificationConfiguration:
+        TopicConfigurations:
+        - Topic: !Ref ErrorAlarmTopic 
+          Event: s3:ObjectCreated:Put
+
+  S3ErrorAlarmPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref ErrorAlarmTopic
+      PolicyDocument:
+        Id: S3ErrorAlarmPolicy
+        Version: '2012-10-17'
+        Statement:
+          - Sid: S3TriggerAccess
+            Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Action:
+              - sns:Publish
+            Resource: !Ref ErrorAlarmTopic
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Sub 'arn:aws:s3:::${BaseName}-storage-${Environment}'
 
   DealCheckFunction:
     Type: AWS::Serverless::Function
