@@ -64,6 +64,12 @@ Resources:
       # If you specify a `TopicName`, you can't perform updates that require replacement of this resource
       DisplayName: NewDealTopic
 
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain # Deletion fails for buckets that have contents
+    # Properties:
+      # If you specify a `BucketName`, you can't perform updates that require replacement of this resource 
+
   DealCheckFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -76,6 +82,8 @@ Resources:
             KeyId: !Ref KmsKeyId
         - SNSPublishMessagePolicy:
             TopicName: !GetAtt DealUpdateTopic.TopicName
+        - S3WritePolicy:
+            BucketName: !Ref S3Bucket
         - Version: '2012-10-17'
           Statement:
             Effect: Allow
@@ -92,6 +100,7 @@ Resources:
           MEH_API_KEY: !Ref MehApiKey
           API_ENDPOINT: !Ref GraphQlEndpoint
           TOPIC_ARN: !Ref DealUpdateTopic
+          BUCKET_NAME: !Ref S3Bucket
       Events:
         Schedule1:
           Type: Schedule # https://github.com/aws/serverless-application-model/blob/master/versions/2016-10-31.md#schedule
@@ -183,3 +192,7 @@ Outputs:
     Description: Lambda error CloudWatch Alarm ARN
     Value: !GetAtt DealCheckErrorAlarm.Arn
     Condition: SendAlarmNotification
+
+  S3BucketOutput:
+    Description: S3 Bucket name
+    Value: !Ref S3Bucket
