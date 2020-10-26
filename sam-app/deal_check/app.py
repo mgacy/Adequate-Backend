@@ -11,6 +11,7 @@ API_ENDPOINT = os.environ['API_ENDPOINT']
 # MEH_ENDPOINT = os.environ['MEH_ENDPOINT']
 MEH_API_KEY = os.environ['MEH_API_KEY']  # Encrypted key
 TOPIC_ARN = os.environ['TOPIC_ARN']
+BUCKET_NAME = os.environ['BUCKET_NAME']
 
 # Configure logging
 # https://docs.aws.amazon.com/lambda/latest/dg/python-logging.html
@@ -117,7 +118,11 @@ def replace_current_deal(local, remote):
             f'\nDeal: {json.dumps(remote, indent=2)}'
         )
         raise e
-
+    except BaseException as e:
+        logger.exception(
+            f'## Unexpected error while trying to replace curren_deal: {e}'
+        )
+        raise e
     return r2
 
 
@@ -146,11 +151,20 @@ def handle_copy_error(deal, error):
                 f"{e.message} - {e.errors}"
             )
             raise e
+        # except BaseException as e:
 
-        # If copy of deal already exists,
+        # Check if copy of deal already exists ...
         existing = r.get('getDeal')
-        # TODO: add support to specify selection set so we don't need to do this
-        existing.pop('_version', None)
+        if not existing:
+            # TODO: improve message
+            logger.exception(
+                f"## Unable to recover from error copying current_deal; Deal"
+                f"'{deal['id']} does not exist in db"
+            )
+            raise error
+
+        # TODO: support passing selection set so we don't need to do this
+        [existing.pop(k, None) for k in ['_version', 'topic']]
 
         if existing == deal:
             logger.info(
@@ -158,12 +172,26 @@ def handle_copy_error(deal, error):
                 f"db with id '{deal['id']}'"
             )
         else:
-            logger.exception(
+            # Copy of deal already exists but it does not match
+            try:
+                filepath = save_to_bucket(session, deal)
+            except BaseException as e:
+                logger.exception(
+                    f"## Unable to recover from error copying current_deal - "
+                    f"Deal'{deal['title']}' already exists in db with id "
+                    f"'{deal['id']}' it but differs from current_deal. "
+                    f"Encountered additional error trying to save Deal to S3: "
+                    f"{e}"
+                )
+                raise error
+
+            # TODO: use logger.warning instead?
+            logger.error(
                 f"## Unable to recover from error copying current_deal - "
-                f"Deal'{deal['title']}' already exists in db but differs "
-                f"from current_deal: {json.dumps(deal, indent=2)}"
+                f"Deal'{deal['title']}' already exists in db with id "
+                f"'{deal['id']}' but differs from current_deal. A copy was "
+                f"saved to S3 at:'{filepath}'"
             )
-            raise error
 
     # Some other error we can't handle
     else:
@@ -171,6 +199,44 @@ def handle_copy_error(deal, error):
             f"## Unable to recover from error copying current_deal"
         )
         raise error
+
+
+def save_to_bucket(session, deal):
+    """Save `deal` to AWS S3 and return path.
+
+    Parameters
+    ----------
+    session : boto3.Session
+        AWS boto3 Session
+    deal : dict
+        Deal to write to S3
+
+    Returns
+    -------
+    str
+        Path of created file
+
+    Raises
+    ------
+    Exception
+        Unable to save `deal` to S3
+    """
+    date_string = dt.utcnow().strftime("%Y-%m-%d-%H-%M")
+    filename = f"copy_errors/{date_string}_{deal['id']}.json"
+
+    response = session.client('s3').put_object(
+        Bucket=BUCKET_NAME,
+        Key=filename,
+        Body=(bytes(json.dumps(deal).encode('UTF-8'))),
+        ContentType='application/json'
+    )
+    # TODO: encapsulate this
+    status_code = response.get('ResponseMetadata', {}).get('HTTPStatusCode')
+    if status_code != 200:
+        raise Exception(
+            f"## Error writing to S3: {response['ResponseMetadata']}")
+
+    return f'{BUCKET_NAME}/{filename}'
 
 
 def send_sns(session, topic_arn, content):
