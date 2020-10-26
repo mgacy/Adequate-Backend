@@ -7,8 +7,8 @@ import os
 import sys
 import boto3
 from botocore.exceptions import ClientError
-from ddb_operation import ResponseStatusError
-from ddb_operation import raise_for_status
+from boto_errors import ResponseStatusError
+from boto_errors import raise_for_status
 
 RECENT_INDEX_NAME = 'isRecent-createdAt-index'
 # TODO: use different values for master / develop?
