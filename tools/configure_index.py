@@ -35,7 +35,7 @@ def check_gsi_exists(client, table_name, index_name):
     Parameters
     ----------
     client : boto3.Client
-        boto3 Client
+        boto3 client for DynamoDB
     table_name : str
         DynamoDB table name
     index_name : str
