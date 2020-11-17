@@ -99,6 +99,7 @@ def lambda_handler(event, context):
         apns.raise_for_status(response)
     except ValueError as e:
         logger.error(f"## {e}")
+        raise e
     except apns.ResponseStatusError as e:
         logger.error(
             f"## Failed to send SNS message: {json.dumps(response, indent=2)}"
