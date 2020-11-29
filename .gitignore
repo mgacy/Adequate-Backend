@@ -18,6 +18,9 @@ amplifytools.xcconfig
 amplify/team-provider-info.json
 .envrc
 
+# Build Artifacts
+build.toml
+
 # Other
 /tools/migrations
 
