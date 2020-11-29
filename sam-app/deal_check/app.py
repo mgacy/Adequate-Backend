@@ -165,7 +165,7 @@ def handle_copy_error(deal, error):
             raise error
 
         # TODO: support passing selection set so we don't need to do this
-        [existing.pop(k, None) for k in ['_version', 'topic']]
+        [existing.pop(k, None) for k in ['_version', 'topic', 'updatedAt']]
 
         if existing == deal:
             logger.info(
