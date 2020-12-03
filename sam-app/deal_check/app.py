@@ -48,6 +48,7 @@ appsync.auth(session)
 # -----------------------------------------------------------------------------
 # Functions
 
+# TODO: pass `appsync` instance so we can mock and test
 def replace_current_deal(local, remote):
     """Archive `local` and update current deal with `remote`.
 
@@ -127,6 +128,8 @@ def replace_current_deal(local, remote):
     return r2
 
 
+# TODO: pass `appsync`, `session` instances so we can mock and test
+# TODO: rather than call logger here, raise exception with message sent to logger
 def handle_copy_error(deal, error):
     logger.error(
         f'## Failed to copy current_deal: {error.message} - {error.errors}'
@@ -407,6 +410,8 @@ def lambda_handler(event, context):
             message = adequate.delta_message(update['id'], delta)
             # except ValueError as e:
 
+            # TODO: throttle `DealDelta.commentCount` notifications; we don't 
+            # need to send one every 5 minutes
     else:
         logger.info(
             f"## Replacing current_deal '{current['title']}' with "
