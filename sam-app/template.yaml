@@ -5,7 +5,7 @@ Description: >
 
   Additional elements for Adequate Backend
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+# Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 5
@@ -47,17 +47,56 @@ Parameters:
   GraphQlEndpoint:
     Type: String
     Description: AppSync Endpoint associated with this project
+  AlarmEmailParam:
+    Type: String
+    Description: Email address to which function alarms will be sent (Optional)
+    Default: ''
 
 Conditions:
   UseApnsSandbox: !Not [!Equals [ !Ref Environment, master ]]
+  SendAlarmNotification: !Not [!Equals [!Ref AlarmEmailParam, '']]
 
 Resources:
 
   DealUpdateTopic:
     Type: AWS::SNS::Topic
     Properties:
-      # If you specify a `TopicName`, you can't perform updates that require replacement of this resource
+      # Specifying a `TopicName` prevents updates that require replacement of this resource
       DisplayName: NewDealTopic
+
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    DependsOn: S3ErrorAlarmPolicy
+    DeletionPolicy: Retain # Deletion fails for buckets that have contents
+    Properties:
+      # Specifying a `BucketName` prevents updates that require replacement of this resource
+      # However, without it, you can't add notification in the same template
+      # https://aws.amazon.com/premiumsupport/knowledge-center/unable-validate-destination-s3/
+      BucketName: !Sub '${BaseName}-storage-${Environment}'
+      NotificationConfiguration:
+        TopicConfigurations:
+        - Topic: !Ref ErrorAlarmTopic 
+          Event: s3:ObjectCreated:Put
+
+  S3ErrorAlarmPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref ErrorAlarmTopic
+      PolicyDocument:
+        Id: S3ErrorAlarmPolicy
+        Version: '2012-10-17'
+        Statement:
+          - Sid: S3TriggerAccess
+            Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Action:
+              - sns:Publish
+            Resource: !Ref ErrorAlarmTopic
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Sub 'arn:aws:s3:::${BaseName}-storage-${Environment}'
 
   DealCheckFunction:
     Type: AWS::Serverless::Function
@@ -71,6 +110,8 @@ Resources:
             KeyId: !Ref KmsKeyId
         - SNSPublishMessagePolicy:
             TopicName: !GetAtt DealUpdateTopic.TopicName
+        - S3WritePolicy:
+            BucketName: !Ref S3Bucket
         - Version: '2012-10-17'
           Statement:
             Effect: Allow
@@ -87,12 +128,13 @@ Resources:
           MEH_API_KEY: !Ref MehApiKey
           API_ENDPOINT: !Ref GraphQlEndpoint
           TOPIC_ARN: !Ref DealUpdateTopic
+          BUCKET_NAME: !Ref S3Bucket
       Events:
         Schedule1:
-          Type: Schedule
+          Type: Schedule # https://github.com/aws/serverless-application-model/blob/master/versions/2016-10-31.md#schedule
           Properties:
             Description: Schedule rule for deal_check Lambda 
-            Schedule: cron(1/10 * * * ? *)
+            Schedule: cron(1/5 * * * ? *)
 
   DealNotificationTopic:
     Type: AWS::SNS::Topic
@@ -100,7 +142,7 @@ Resources:
       DisplayName: NewDealAPNs
 
   NotificationFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       Description: Send push notifications for new / updated deals via APNS
       CodeUri: push_notification/
@@ -116,9 +158,41 @@ Resources:
           APNS_CATEGORY: !Ref ApnsCategory
       Events:
         SNSEventSource:
-          Type: SNS # More info about SNS Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#sns
+          Type: SNS # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#sns
           Properties:
             Topic: !Ref DealUpdateTopic
+
+  ErrorAlarmTopic:
+    Condition: SendAlarmNotification
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: DealCheckError
+
+  ErrorAlarmEmailSubscription:
+    Condition: SendAlarmNotification
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref ErrorAlarmTopic
+      Protocol: email
+      Endpoint: !Ref AlarmEmailParam
+
+  DealCheckErrorAlarm:
+    Condition: SendAlarmNotification
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      # AlarmDescription: 
+      AlarmActions:
+        - !Ref ErrorAlarmTopic
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref DealCheckFunction
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: '1'
 
 Outputs:
   DealUpdateTopicOutput:
@@ -136,3 +210,17 @@ Outputs:
   NotificationFunctionOutput:
     Description: Notification Lambda Function ARN
     Value: !GetAtt NotificationFunction.Arn
+
+  ErrorAlarmTopicOutput:
+    Description: Lambda error alarm SNS Topic ARN
+    Value: !Ref ErrorAlarmTopic
+    Condition: SendAlarmNotification
+
+  DealCheckErrorAlarmOutput:
+    Description: Lambda error CloudWatch Alarm ARN
+    Value: !GetAtt DealCheckErrorAlarm.Arn
+    Condition: SendAlarmNotification
+
+  S3BucketOutput:
+    Description: S3 Bucket name
+    Value: !Ref S3Bucket

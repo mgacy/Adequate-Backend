@@ -7,8 +7,8 @@ import os
 import sys
 import boto3
 from botocore.exceptions import ClientError
-from ddb_operation import ResponseStatusError
-from ddb_operation import raise_for_status
+from boto_errors import ResponseStatusError
+from boto_errors import raise_for_status
 
 RECENT_INDEX_NAME = 'isRecent-createdAt-index'
 # TODO: use different values for master / develop?
@@ -35,7 +35,7 @@ def check_gsi_exists(client, table_name, index_name):
     Parameters
     ----------
     client : boto3.Client
-        boto3 Client
+        boto3 client for DynamoDB
     table_name : str
         DynamoDB table name
     index_name : str

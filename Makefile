@@ -9,6 +9,7 @@ GRAPHQL_ENDPOINT ?= "UNDEFINED"
 KMS_KEY_ID ?= "UNDEFINED"
 MEH_API_KEY ?= "UNDEFINED"
 APNS_CATEGORY ?= "UNDEFINED"
+ALARM_EMAIL ?= "UNDEFINED"
 
 AMPLIFY_SETTINGS = amplify/\#current-cloud-backend/amplify-meta.json
 AWS_REGION := $(shell jq -r '.providers.awscloudformation.Region' ${AMPLIFY_SETTINGS})
@@ -49,7 +50,8 @@ deploy: ##=> Deploy services
 				MehApiKey=$(MEH_API_KEY) \
 				ApnsCategory=$(APNS_CATEGORY) \
 				GraphQlId=$(GRAPHQL_API_ID) \
-				GraphQlEndpoint=$(GRAPHQL_ENDPOINT)
+				GraphQlEndpoint=$(GRAPHQL_ENDPOINT) \
+				AlarmEmailParam=$(ALARM_EMAIL)
 
 configure-gsi:
 	$(info [*] Configuring GSI for Query.dealHistory in Table 'Deal-$(GRAPHQL_API_ID)-$(AWS_BRANCH)')
@@ -81,6 +83,8 @@ define HELP_MESSAGE
 		Description: Meh API key from https://meh.com/developers-developers-developers
 	APNS_CATEGORY: "MGDailyDealCategory"
 		Description: Notification category used for APNs
+	ALARM_EMAIL: Email address
+		Description: Email address to which lambda function error notifications are sent
 
 	Common usage:
 

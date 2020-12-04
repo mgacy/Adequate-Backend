@@ -11,10 +11,10 @@ from boto3 import resource
 from boto3.dynamodb.conditions import Attr
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
+from boto_errors import ResponseStatusError
+from boto_errors import raise_for_status
 from ddb_operation import UpdateItemError
-from ddb_operation import ResponseStatusError
 from ddb_operation import execute_query
-from ddb_operation import raise_for_status
 from ddb_operation import update_items
 from tz_support import Eastern
 

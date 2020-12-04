@@ -34,7 +34,7 @@ def meh(api_key):
 
 
 def alert_message(deal):
-    """Return message formatted for SNS.
+    """Return newDeal message formatted for SNS.
 
     Parameters
     ----------
@@ -90,6 +90,30 @@ def alert_message(deal):
 
 
 def delta_message(deal_id, delta):
+    """Return deal update message formatted for SNS.
+
+    Parameters
+    ----------
+    deal_id : str
+        Deal id
+    delta : dict
+        Deal update
+
+        launchStatus : str, optional
+            Deal `launchStatus`
+        topic : dict, optional
+            Deal `topic`
+
+    Returns
+    -------
+    dict
+        Payload for APNS notification
+
+    Raises
+    ------
+    ValueError
+        Malformed `delta`
+    """    
     comment_count = delta.get('topic', {}).get('commentCount')
     launch_status = delta.get('launchStatus')
 
@@ -105,7 +129,10 @@ def delta_message(deal_id, delta):
         delta_value = comment_count
     else:
         # TODO: is this the best way to handle?
-        raise ValueError(" error")
+        raise ValueError(
+            "Expected either `launchStatus` or `topic['commentCount']` in"
+            f"delta: {delta}"
+        )
 
     # TODO: return `namedtuple`?
     return {
