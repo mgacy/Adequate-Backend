@@ -410,8 +410,13 @@ def lambda_handler(event, context):
             message = adequate.delta_message(update['id'], delta)
             # except ValueError as e:
 
-            # TODO: throttle `DealDelta.commentCount` notifications; we don't 
+            # Throttle `DealDelta.commentCount` notifications; we don't 
             # need to send one every 5 minutes
+            # FIXME: implement better solution
+            if message.get('delta_type') == 'commentCount':
+                logger.info("Skipping commentCount update notification")
+                return
+
     else:
         logger.info(
             f"## Replacing current_deal '{current['title']}' with "
