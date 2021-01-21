@@ -11,52 +11,10 @@ import typing
 from typing import Optional
 import boto3
 from botocore.exceptions import ClientError
+from config import Config
 from boto_errors import ResponseStatusError
 from boto_errors import raise_for_status
 
-
-# Default base name for AWS CloudFormation stacks
-DEFAULT_BASE_STACK_NAME = 'adequate-sam'
-
-# Relative path of amplify configuration file
-TEAM_PROVIDER_INFO = '../amplify/team-provider-info.json'
-
-# Relative path of amplify environment configuration file
-# AMPLIFY_META = '../amplify/#current-cloud-backend/amplify-meta.json'
-
-# Name of Amplify development environment and suffix for corresponding
-# CloudFormation stack
-DEV_BRANCH_SUFFIX = 'dev'
-
-# AWS SNS platform for APNs sandbox
-DEV_SNS_PLATFORM = 'APNS_SANDBOX'
-
-# Name of AWS SNS platform application using APNs sandbox
-DEV_SNS_APP_NAME = 'Adequate-Development'
-
-# Name of Amplify production environment and suffix for corresponding
-# CloudFormation stack
-MASTER_BRANCH_SUFFIX = 'master'
-
-# AWS SNS platform for APNs
-MASTER_SNS_PLATFORM = 'APNS'
-
-# Name of AWS SNS platform application using APNs
-MASTER_SNS_APP_NAME = 'Adequate-Production'
-
-# Name of inline policy to attach to unauth IAM role
-POLICY_NAME = 'APNs_SNSAccess'
-
-# Valid AWS SNS platforms
-VALID_PLATFORMS = [DEV_SNS_PLATFORM, MASTER_SNS_PLATFORM]
-
-
-# Configure logging
-# logger = logging.getLogger()
-# logging.basicConfig(level=logging.INFO)
-
-
-# -----------------------------------------------------------------------------
 
 def get_amplify_setting(file_path: str, object_id: str) -> str:
     """Return value of key path `object_id` in JSON file at `file_path`
@@ -120,7 +78,7 @@ def get_platform_application(client, platform: str, name: str,
     ResponseStatusError
         Request was not successful
     """
-    if platform not in VALID_PLATFORMS:
+    if platform not in Config.VALID_SNS_PLATFORMS:
         raise ValueError('Invalid platfrom')
 
     kwargs = {}
@@ -302,7 +260,7 @@ def add_sns_policy(client, role_name: str, platform_application_arn: str,
     try:
         resp = client.put_role_policy(
             RoleName=role_name,
-            PolicyName=POLICY_NAME,
+            PolicyName=Config.SNS_POLICY_NAME,
             PolicyDocument=policy_document_string
         )
     except ClientError as e:
@@ -348,7 +306,7 @@ def configure_for_branch(session, sam_base_name: str, env_name: str,
     """
     # Get name of unauth role for amplify environment
     role_name_id = f'.{env_name}.awscloudformation.UnauthRoleName'
-    role_name = get_amplify_setting(TEAM_PROVIDER_INFO, role_name_id)
+    role_name = get_amplify_setting(Config.TEAM_PROVIDER_INFO, role_name_id)
 
     # Get ARN of SNS topic for corresponding CloudFormation stack
     topic_arn = get_topic_arn(session.client('cloudformation'),
@@ -357,11 +315,12 @@ def configure_for_branch(session, sam_base_name: str, env_name: str,
     iam = session.client('iam')
 
     # Verify inline policy does not already exist
-    policy_exists = check_sns_policy_exists(iam, role_name, POLICY_NAME)
+    policy_exists = check_sns_policy_exists(iam, role_name, 
+                                            Config.SNS_POLICY_NAME)
     if policy_exists:
         logging.info(
-            f"Inline policy '{POLICY_NAME}' already exists for IAM role "
-            f"'{role_name}'"
+            f"Inline policy '{Config.SNS_POLICY_NAME}' already exists for IAM "
+            f"role '{role_name}'"
         )
         return
 
@@ -390,7 +349,7 @@ def init_argparse() -> argparse.ArgumentParser:
     )
 
     parser.add_argument('--base-name', metavar='stack-name',
-                        default=DEFAULT_BASE_STACK_NAME,
+                        default=Config.DEFAULT_BASE_STACK_NAME,
                         help='Base name for AWS CloudFormation stacks')
 
     parser.add_argument('--region', default=None,
@@ -420,24 +379,27 @@ def main():
 
     # Branch: dev
     logging.info(
-        f"Configuring unauth role for '{DEV_BRANCH_SUFFIX}' environment...")
+        f"Configuring unauth role for '{Config.DEV_BRANCH_SUFFIX}' "
+        "environment...")
     apns_sandbox = get_platform_application(
         sns, DEV_SNS_PLATFORM, DEV_SNS_APP_NAME)
 
     # try:
-    dev_resp = configure_for_branch(session, args.base_name, DEV_BRANCH_SUFFIX,
+    dev_resp = configure_for_branch(session, args.base_name, 
+                                    Config.DEV_BRANCH_SUFFIX,
                                     apns_sandbox)
     # except BaseException as e:
 
     # Branch: master
     logging.info(
-        f"Configuring unauth role for '{MASTER_BRANCH_SUFFIX}' environment...")
+        f"Configuring unauth role for '{Config.MASTER_BRANCH_SUFFIX}'"
+        "environment...")
     apns = get_platform_application(
         sns, MASTER_SNS_PLATFORM, MASTER_SNS_APP_NAME)
 
     # try:
     prod_resp = configure_for_branch(session, args.base_name,
-                                     MASTER_BRANCH_SUFFIX, apns)
+                                     Config.MASTER_BRANCH_SUFFIX, apns)
     # except BaseException as e:
 
 

@@ -8,12 +8,9 @@ from pathlib import Path
 import typing
 import boto3
 from botocore.exceptions import ClientError
+from config import Config
 from boto_errors import ResponseStatusError
 from boto_errors import raise_for_status
-
-KMS_ALIAS = 'adequate'
-
-KMS_DESCRIPTION = 'adequate assets'
 
 ENV_VARS_PATH = '.env'
 
@@ -127,8 +124,8 @@ def main():
     
     kms_client = boto3.client('kms')
 
-    key_id = create_cmk(kms_client, KMS_DESCRIPTION)
-    create_alias(kms_client, key_id, KMS_ALIAS)
+    key_id = create_cmk(kms_client, Config.KMS_DESCRIPTION)
+    create_alias(kms_client, key_id, Config.KMS_ALIAS)
 
     path = Path(__file__).parent / f'../{ENV_VARS_PATH}'
     aws_region = kms_client.meta.region_name

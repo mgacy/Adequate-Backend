@@ -7,25 +7,10 @@ import os
 import sys
 import boto3
 from botocore.exceptions import ClientError
+from config import Config
 from boto_errors import ResponseStatusError
 from boto_errors import raise_for_status
 
-RECENT_INDEX_NAME = 'isRecent-createdAt-index'
-# TODO: use different values for master / develop?
-DEFAULT_READ_UNITS = 3  # 5?
-DEFAULT_WRITE_UNITS = 1  # 2?
-
-# Configure logging
-# logger = logging.getLogger()
-# logging.basicConfig(level=logging.INFO
-
-# BILLING_MODES = [
-#     'PROVISIONED',
-#     'PAY_PER_REQUEST'
-# ]
-
-
-# -----------------------------------------------------------------------------
 
 def check_gsi_exists(client, table_name, index_name):
     """Check if GSI `index_name` already exists for DynamoDB table `table_name`
@@ -151,13 +136,15 @@ def init_argparse() -> argparse.ArgumentParser:
     )
     parser.add_argument('table_name', metavar='table-name')
     parser.add_argument('--index', metavar='index-name',
-                        default=RECENT_INDEX_NAME,
+                        default=Config.RECENT_INDEX_NAME,
                         help='Override default name for GSI')
     # TODO: add support for `PAY_PER_REQUEST` `BillingMode`
-    # parser.add_argument('--billing-mode', choices=BILLING_MODES, default='PROVISIONED')
-    parser.add_argument('--read', type=int, default=DEFAULT_READ_UNITS,
+    # parser.add_argument('--billing-mode', choices=Config.BILLING_MODES, 
+    #                     default='PROVISIONED')
+    parser.add_argument('--read', type=int, default=Config.DEFAULT_READ_UNITS,
                         help='ReadCapacityUnits for GSI')
-    parser.add_argument('--write', type=int, default=DEFAULT_WRITE_UNITS,
+    parser.add_argument('--write', type=int, 
+                        default=Config.DEFAULT_WRITE_UNITS,
                         help='WriteCapacityUnits for GSI')
     return parser
 
