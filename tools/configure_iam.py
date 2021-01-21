@@ -1,14 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-#
-# 11/11/20
 
 import argparse
 import json
-# import logging
+import logging
 import os
 import subprocess
 import sys
+import typing
+from typing import Optional
 import boto3
 from botocore.exceptions import ClientError
 from boto_errors import ResponseStatusError
@@ -53,12 +53,12 @@ VALID_PLATFORMS = [DEV_SNS_PLATFORM, MASTER_SNS_PLATFORM]
 
 # Configure logging
 # logger = logging.getLogger()
-# logging.basicConfig(level=logging.INFO
+# logging.basicConfig(level=logging.INFO)
 
 
 # -----------------------------------------------------------------------------
 
-def get_amplify_setting(file_path, object_id):
+def get_amplify_setting(file_path: str, object_id: str) -> str:
     """Return value of key path `object_id` in JSON file at `file_path`
 
     Parameters
@@ -80,7 +80,7 @@ def get_amplify_setting(file_path, object_id):
             capture_output=True, text=True, check=True
         ).stdout.splitlines()
     except subprocess.CalledProcessError as e:
-        print(f'Error: {e.stderr}')
+        logging.error(f'Error: {e.stderr}')
         # TODO: throw more generic error?
         raise e
 
@@ -92,7 +92,8 @@ def get_amplify_setting(file_path, object_id):
     return result
 
 
-def get_platform_application(client, platform, name, next_token=None):
+def get_platform_application(client, platform: str, name: str, 
+                             next_token: Optional[str] = None) -> str:
     """Return ARN of AWS SNS platform application
 
     Parameters
@@ -148,7 +149,8 @@ def get_platform_application(client, platform, name, next_token=None):
         return get_platform_application(client, platform, name, token)
 
 
-def get_topic_arn(client, stack_name, next_token=None):
+def get_topic_arn(client, stack_name: str, 
+                  next_token: Optional[str] = None) -> str:
     """Return ARN of AWS SNS topic used for APNs notifications in Adequate AWS
     SAM stack
 
@@ -181,11 +183,11 @@ def get_topic_arn(client, stack_name, next_token=None):
     try:
         resp = client.describe_stacks(**kwargs)
     except ClientError as e:
-        print(f"Error with boto3 request: {e}")
+        logging.error(f"Error with boto3 request: {e}")
         raise e
     # except client.exceptions.AmazonCloudFormationException as e:
     except BaseException as e:
-        print(f"Other error: {e}")
+        logging.error(f"Other error: {e}")
         raise e
 
     raise_for_status(resp)
@@ -201,7 +203,8 @@ def get_topic_arn(client, stack_name, next_token=None):
         return get_topic_arn(client, stack_name, token)
 
 
-def check_sns_policy_exists(client, role_name, policy_name, next_token=None):
+def check_sns_policy_exists(client, role_name: str, policy_name: str, 
+                            next_token: Optional[str] = None) -> bool:
     """Check if inline policy `policy_name` already exists for IAM role
     `role_name`
 
@@ -248,7 +251,8 @@ def check_sns_policy_exists(client, role_name, policy_name, next_token=None):
         return False
 
 
-def add_sns_policy(client, role_name, platform_application_arn, topic_arn):
+def add_sns_policy(client, role_name: str, platform_application_arn: str, 
+                   topic_arn: str) -> dict:
     """Add inline policy to IAM role enabling access to an SNS platform
     application and SNS topic
 
@@ -302,7 +306,7 @@ def add_sns_policy(client, role_name, platform_application_arn, topic_arn):
             PolicyDocument=policy_document_string
         )
     except ClientError as e:
-        print(f"Error with boto3 request: {e}")
+        logging.error(f"Error with boto3 request: {e}")
         raise e
     # except client.exceptions.NoSuchEntityException as e:
     # except client.exceptions.UnmodifiableEntityException as e:
@@ -310,15 +314,15 @@ def add_sns_policy(client, role_name, platform_application_arn, topic_arn):
     # except client.exceptions.MalformedPolicyDocumentException as e:
     # except client.exceptions.LimitExceededException as e:
     except BaseException as e:
-        print(f"Other error: {e}")
+        logging.error(f"Other error: {e}")
         raise e
 
     raise_for_status(resp)
     return resp
 
 
-def configure_for_branch(session, sam_base_name, env_name,
-                         platform_application_arn):
+def configure_for_branch(session, sam_base_name: str, env_name: str,
+                         platform_application_arn: str):
     """Add inline policy to IAM unauth role for branch enabling access to APNs
 
     Enables access to both the SNS platform application and the SNS topic
@@ -345,19 +349,17 @@ def configure_for_branch(session, sam_base_name, env_name,
     # Get name of unauth role for amplify environment
     role_name_id = f'.{env_name}.awscloudformation.UnauthRoleName'
     role_name = get_amplify_setting(TEAM_PROVIDER_INFO, role_name_id)
-    # print(f'Unauth Role Name: {role_name}')
 
     # Get ARN of SNS topic for corresponding CloudFormation stack
     topic_arn = get_topic_arn(session.client('cloudformation'),
                               f'{sam_base_name}-{env_name}')
-    # print(f'Topic ARN: {topic_arn}')
 
     iam = session.client('iam')
 
     # Verify inline policy does not already exist
     policy_exists = check_sns_policy_exists(iam, role_name, POLICY_NAME)
     if policy_exists:
-        print(
+        logging.info(
             f"Inline policy '{POLICY_NAME}' already exists for IAM role "
             f"'{role_name}'"
         )
@@ -368,7 +370,7 @@ def configure_for_branch(session, sam_base_name, env_name,
         resp = add_sns_policy(iam, role_name, platform_application_arn,
                               topic_arn)
     except ClientError as e:
-        print(f"Error with boto3 request: {e}")
+        logging.error(f"Error with boto3 request: {e}")
         raise e
     raise_for_status(resp)
     return resp
@@ -394,21 +396,31 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument('--region', default=None,
                         help='AWS region name for resources')
 
+    parser.add_argument('--verbose', action='store_true', 
+                        help='Increase output verbosity')
     return parser
 
 
 def main():
     parser = init_argparse()
     args = parser.parse_args()
+
+    if args.verbose:
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.INFO
+    logging.basicConfig(level=log_level,
+                        format='%(levelname)s: %(message)s')
+
     kwargs = {}
     if args.region:
         kwargs['region_name'] = args.region
-
     session = boto3.Session(**kwargs)
     sns = session.client('sns')
 
     # Branch: dev
-    print(f"Configuring unauth role for '{DEV_BRANCH_SUFFIX}' environment...")
+    logging.info(
+        f"Configuring unauth role for '{DEV_BRANCH_SUFFIX}' environment...")
     apns_sandbox = get_platform_application(
         sns, DEV_SNS_PLATFORM, DEV_SNS_APP_NAME)
 
@@ -418,7 +430,8 @@ def main():
     # except BaseException as e:
 
     # Branch: master
-    print(f"Configuring unauth role for '{MASTER_BRANCH_SUFFIX}' environment...")
+    logging.info(
+        f"Configuring unauth role for '{MASTER_BRANCH_SUFFIX}' environment...")
     apns = get_platform_application(
         sns, MASTER_SNS_PLATFORM, MASTER_SNS_APP_NAME)
 

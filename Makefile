@@ -30,6 +30,9 @@ help:
 	$(info ${HELP_MESSAGE})
 	@exit 0
 
+init: ##=> Create KMS customer master key
+	python3 tools/configure_kms.py
+
 create-bucket: ##=> Create S3 bucket
 	$(info [*] Creating S3 bucket at s3://$(DEPLOYMENT_BUCKET_NAME)")
 	@aws s3 mb s3://$(DEPLOYMENT_BUCKET_NAME) --region $(AWS_REGION)
@@ -55,9 +58,9 @@ deploy: ##=> Deploy services
 
 configure-gsi:
 	$(info [*] Configuring GSI for Query.dealHistory in Table 'Deal-$(GRAPHQL_API_ID)-$(AWS_BRANCH)')
-	python tools/configure_index.py Deal-$(GRAPHQL_API_ID)-$(AWS_BRANCH)
+	python3 tools/configure_index.py Deal-$(GRAPHQL_API_ID)-$(AWS_BRANCH)
 
-.PHONY: help create-bucket deploy configure-gsi
+.PHONY: help init create-bucket deploy configure-gsi
 
 #############
 #  Helpers  #
