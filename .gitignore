@@ -20,6 +20,7 @@ amplify/team-provider-info.json
 
 # Build Artifacts
 build.toml
+/API.swift
 
 # Other
 /tools/migrations
