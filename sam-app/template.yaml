@@ -50,11 +50,11 @@ Parameters:
   AlarmEmailParam:
     Type: String
     Description: Email address to which function alarms will be sent (Optional)
-    Default: ''
+    Default: 'NONE'
 
 Conditions:
   UseApnsSandbox: !Not [!Equals [ !Ref Environment, master ]]
-  SendAlarmNotification: !Not [!Equals [!Ref AlarmEmailParam, '']]
+  SendAlarmNotification: !Not [!Equals [!Ref AlarmEmailParam, 'NONE']]
 
 Resources:
 
@@ -75,7 +75,7 @@ Resources:
       BucketName: !Sub '${BaseName}-storage-${Environment}'
       NotificationConfiguration:
         TopicConfigurations:
-        - Topic: !Ref ErrorAlarmTopic 
+        - Topic: !Ref ErrorAlarmTopic
           Event: s3:ObjectCreated:Put
 
   S3ErrorAlarmPolicy:
@@ -133,7 +133,7 @@ Resources:
         Schedule1:
           Type: Schedule # https://github.com/aws/serverless-application-model/blob/master/versions/2016-10-31.md#schedule
           Properties:
-            Description: Schedule rule for deal_check Lambda 
+            Description: Schedule rule for deal_check Lambda
             Schedule: cron(1/5 * * * ? *)
 
   DealNotificationTopic:
@@ -163,13 +163,14 @@ Resources:
             Topic: !Ref DealUpdateTopic
 
   ErrorAlarmTopic:
-    Condition: SendAlarmNotification
+    # Condition: SendAlarmNotification
     Type: AWS::SNS::Topic
     Properties:
       DisplayName: DealCheckError
 
   ErrorAlarmEmailSubscription:
     Condition: SendAlarmNotification
+    DependsOn: ErrorAlarmTopic
     Type: AWS::SNS::Subscription
     Properties:
       TopicArn: !Ref ErrorAlarmTopic
@@ -177,10 +178,10 @@ Resources:
       Endpoint: !Ref AlarmEmailParam
 
   DealCheckErrorAlarm:
-    Condition: SendAlarmNotification
+    # Condition: SendAlarmNotification
     Type: AWS::CloudWatch::Alarm
     Properties:
-      # AlarmDescription: 
+      # AlarmDescription:
       AlarmActions:
         - !Ref ErrorAlarmTopic
       ComparisonOperator: GreaterThanOrEqualToThreshold
@@ -198,11 +199,11 @@ Outputs:
   DealUpdateTopicOutput:
     Description: Lambda communication SNS Topic ARN
     Value: !Ref DealUpdateTopic
-    
+
   DealNotificationTopicOutput:
     Description: Push notification SNS Topic ARN
     Value: !Ref DealNotificationTopic
-  
+
   DealCheckFunctionOutput:
     Description: DealCheck Lambda Function ARN
     Value: !GetAtt DealCheckFunction.Arn
@@ -214,12 +215,12 @@ Outputs:
   ErrorAlarmTopicOutput:
     Description: Lambda error alarm SNS Topic ARN
     Value: !Ref ErrorAlarmTopic
-    Condition: SendAlarmNotification
+    # Condition: SendAlarmNotification
 
   DealCheckErrorAlarmOutput:
     Description: Lambda error CloudWatch Alarm ARN
     Value: !GetAtt DealCheckErrorAlarm.Arn
-    Condition: SendAlarmNotification
+    # Condition: SendAlarmNotification
 
   S3BucketOutput:
     Description: S3 Bucket name

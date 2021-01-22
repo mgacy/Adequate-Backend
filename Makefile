@@ -9,7 +9,7 @@ GRAPHQL_ENDPOINT ?= "UNDEFINED"
 KMS_KEY_ID ?= "UNDEFINED"
 MEH_API_KEY ?= "UNDEFINED"
 APNS_CATEGORY ?= "UNDEFINED"
-ALARM_EMAIL ?= "UNDEFINED"
+ALARM_EMAIL ?= "NONE"
 
 AMPLIFY_SETTINGS = amplify/\#current-cloud-backend/amplify-meta.json
 AWS_REGION := $(shell jq -r '.providers.awscloudformation.Region' ${AMPLIFY_SETTINGS})
