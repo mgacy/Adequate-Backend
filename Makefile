@@ -30,6 +30,10 @@ help:
 	$(info ${HELP_MESSAGE})
 	@exit 0
 
+dev: ##=> Install dependencies for SAM app
+	cd sam-app && \
+		make dev
+
 init: ##=> Create KMS customer master key
 	python3 tools/configure_kms.py
 
