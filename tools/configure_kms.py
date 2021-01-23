@@ -1,5 +1,5 @@
 """
-Create KMS Customer Master Key and `env-vars.sh` 
+Create KMS Customer Master Key and `env-vars.sh`
 """
 
 import logging
@@ -46,7 +46,7 @@ def create_cmk(client, desc='Customer Master Key') -> str:
         Request error
     ResponseStatusError
         Request was not successful
-    """ 
+    """
     try:
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/kms.html#KMS.Client.create_key
         response = client.create_key(Description=desc)
@@ -117,17 +117,21 @@ def create_env_file(f_path: os.PathLike, aws_region: str, kms_key_id: str):
 
 # -----------------------------------------------------------------------------
 
-def main(): 
+def main():
 
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(levelname)s: %(asctime)s: %(message)s')
-    
+    logging.basicConfig(level=logging.INFO,
+                        format='%(levelname)s: %(message)s')
+
     kms_client = boto3.client('kms')
 
     key_id = create_cmk(kms_client, Config.KMS_DESCRIPTION)
-    create_alias(kms_client, key_id, Config.KMS_ALIAS)
+    try:
+        create_alias(kms_client, key_id, Config.KMS_ALIAS)
+    except BaseException as e:
+        logging.error(f"Unable to create alias for KMS key '{key_id}'")
 
     path = Path(__file__).parent / f'../{ENV_VARS_PATH}'
+    # TODO: get region from Amplify config
     aws_region = kms_client.meta.region_name
     create_env_file(path, aws_region, key_id)
 
