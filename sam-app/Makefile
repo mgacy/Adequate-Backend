@@ -46,7 +46,7 @@ invoke.notification: ##=> Run SAM Local function with a given event payload
 test: ##=> Run pytest
 	$(PIPENV) run python -m unittest tests
 
-.PHONY: help dev lock
+.PHONY: help dev lock clean shell invoke.deal invoke.notification test
 
 #############
 #  Helpers  #
@@ -57,8 +57,11 @@ define HELP_MESSAGE
 
 	Common usage:
 
-	...::: Installs Pipenv, application and dev dependencies defined in Pipfile :::...
-	$ make install
+	# ...::: Installs Pipenv, application and dev dependencies defined in Pipfile :::...
+	# $ make install
+
+	...::: Installs application and dev dependencies defined in Pipfile :::...
+	$ make dev
 
 	# ...::: Builds Lambda function dependencies:::...
 	# $ make build

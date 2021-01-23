@@ -120,7 +120,7 @@ def create_env_file(f_path: os.PathLike, aws_region: str, kms_key_id: str):
 def main():
 
     logging.basicConfig(level=logging.INFO,
-                        format='%(levelname)s: %(message)s')
+                        format=Config.LOG_FORMAT)
 
     kms_client = boto3.client('kms')
 

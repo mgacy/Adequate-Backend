@@ -540,7 +540,7 @@ def main():
     # if args.path:
     #     path = Path(args.path)
     # else:
-    path = Path(__file__).parent / "../../Adequate"
+    path = Path(__file__).parent / Config.IOS_CLIENT_PATH
 
     if args.verbose:
         log_level = logging.DEBUG

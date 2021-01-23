@@ -1,8 +1,8 @@
 """
-Create GSI in DynamoDB Deal table for AppSync Query.dealQuery.
+Create GSI in DynamoDB Deal table for AppSync Query.dealHistory.
 """
 import argparse
-# import logging
+import logging
 import os
 import sys
 import boto3
@@ -42,10 +42,10 @@ def check_gsi_exists(client, table_name, index_name):
         resp = client.describe_table(TableName=table_name)
         raise_for_status(resp)
     except ClientError as e:
-        print(f"Error with boto3 request: {e}")
+        logging.error(f"Error with boto3 request: {e}")
         raise e
     except ResponseStatusError as e:
-        print(f"Error describing table '{table_name}': {resp}")
+        logging.error(f"Error describing table '{table_name}': {resp}")
         raise e
 
     table = resp['Table']
@@ -130,22 +130,31 @@ def init_argparse() -> argparse.ArgumentParser:
         usage="%(prog)s [OPTIONS] [TABLE]",
         description="Configure GSI for Query.dealQuery."
     )
+
     parser.add_argument(
         "-v", "--version", action="version",
         version=f"{parser.prog} version 1.0.0"
     )
     parser.add_argument('table_name', metavar='table-name')
+
     parser.add_argument('--index', metavar='index-name',
                         default=Config.RECENT_INDEX_NAME,
                         help='Override default name for GSI')
+
     # TODO: add support for `PAY_PER_REQUEST` `BillingMode`
-    # parser.add_argument('--billing-mode', choices=Config.BILLING_MODES, 
+    # parser.add_argument('--billing-mode', choices=Config.BILLING_MODES,
     #                     default='PROVISIONED')
+
     parser.add_argument('--read', type=int, default=Config.DEFAULT_READ_UNITS,
                         help='ReadCapacityUnits for GSI')
-    parser.add_argument('--write', type=int, 
+
+    parser.add_argument('--write', type=int,
                         default=Config.DEFAULT_WRITE_UNITS,
                         help='WriteCapacityUnits for GSI')
+
+    parser.add_argument('--verbose', action='store_true',
+                    help='Increase output verbosity')
+
     return parser
 
 
@@ -153,17 +162,24 @@ def main():
     parser = init_argparse()
     args = parser.parse_args()
 
+    if args.verbose:
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.INFO
+    logging.basicConfig(level=log_level,
+                        format=Config.LOG_FORMAT)
+
     client = boto3.client('dynamodb')
 
     if check_gsi_exists(client, args.table_name, args.index):
-        print(f"Table '{args.table_name}' already contains GSI '{args.index}'")
+        logging.info(f"Table '{args.table_name}' already contains GSI '{args.index}'")
         return
 
     # Create GSI
     # index_response = create_gsi(client, args.table_name, args.index,)
     index_response = create_gsi(client, args.table_name, args.index,
                                 args.read, args.write)
-    print(index_response)
+    logging.info(index_response)
     raise_for_status(index_response)
 
 

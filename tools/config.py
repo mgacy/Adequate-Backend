@@ -1,6 +1,6 @@
 class Config:
 
-    # LOG_FORMAT = '%(levelname)s: %(asctime)s: %(message)s'
+    LOG_FORMAT = '%(levelname)s: %(message)s'
 
     # Default base name for AWS CloudFormation stacks
     DEFAULT_BASE_STACK_NAME = 'adequate-sam'
@@ -79,3 +79,9 @@ class Config:
 
     # Valid AWS SNS platforms
     VALID_SNS_PLATFORMS = [DEV_SNS_PLATFORM, MASTER_SNS_PLATFORM]
+
+    ##############
+    # iOS Client #
+    ##############
+
+    IOS_CLIENT_PATH = '../../Adequate'
