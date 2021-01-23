@@ -547,7 +547,7 @@ def main():
     else:
         log_level = logging.INFO
     logging.basicConfig(level=log_level,
-                        format='%(levelname)s: %(message)s')
+                        format=Config.LOG_FORMAT)
 
     kwargs = {}
     if args.region:
