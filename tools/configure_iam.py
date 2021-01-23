@@ -1,10 +1,16 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+"""
+Create and configure SNS Platform Applications for APNs notifications.
+"""
+
 import argparse
 import json
 import logging
 import os
+from pathlib import Path
+import re
 import subprocess
 import sys
 import typing
@@ -50,7 +56,134 @@ def get_amplify_setting(file_path: str, object_id: str) -> str:
     return result
 
 
-def get_platform_application(client, platform: str, name: str, 
+def get_apns_profile(path: os.PathLike, platform: str,
+                     org_id: str) -> typing.Tuple[str, str]:
+    """Return credential and principal for APNs profile `platform`
+
+    Parameters
+    ----------
+    path : os.PathLike
+        Path to directory containing `.pkey` and `.pem` files
+    platform : str
+        Type of APNs platform application
+    org_id : str
+        Organization identifier for client app
+
+    Returns
+    -------
+    Tuple[str, str]
+        Contents of APNs credential and principal
+
+    Raises
+    ------
+    ValueError
+        Invalid `platform`
+    """
+    if platform in ['prod', 'production']:
+        f_name = f'production_{org_id}.Adequate'
+    elif platform in ['dev', 'development']:
+        f_name = f'development_{org_id}.Adequate'
+    else:
+        raise ValueError('Invalid platform')
+
+    # Read certificates
+    pkey = path / f'{f_name}.pkey'
+    with open(pkey, 'r') as f1:
+        credential = f1.read()
+
+    pem = path / f'{f_name}.pem'
+    with open(pem, 'r') as f2:
+        principal = f2.read()
+
+    return (credential, principal)
+
+
+def create_platform_app_input(platform: str, pkey: str, pem: str) -> dict:
+	"""Return input for `SNS.create_platform_application()` command
+
+	Parameters
+	----------
+	platform : str
+		Type of APNs platform application
+	pkey : str
+		Contents of `.pkey` file
+	pem : str
+		Contents of `.pem` file
+
+	Returns
+	-------
+	dict
+		Input for `SNS.create_platform_application()`
+
+	Raises
+	------
+	ValueError
+		Invalid `platform`
+	"""
+	if platform in ['prod', 'production']:
+		name = Config.MASTER_SNS_APP_NAME
+		platform = Config.MASTER_SNS_PLATFORM
+	elif platform in ['dev', 'development']:
+		name = Config.DEV_SNS_APP_NAME
+		platform = Config.DEV_SNS_PLATFORM
+	else:
+		raise ValueError('Invalid platform')
+
+	# TODO: IAM role for logging delivery status?
+	return {
+		'Name': name,
+		'Platform': platform,
+		'Attributes': {
+			'PlatformCredential': pkey,
+			'PlatformPrincipal': pem,
+			# 'SuccessFeedbackRoleArn': # Write access for CloudWatch logs
+			# 'FailureFeedbackRoleArn': # Write access for CloudWatch logs
+		}
+	}
+
+
+def create_platform_application(sns_client, input: dict) -> str:
+    """Create SNS Platform Applilcation and return corresponding ARN
+
+    Parameters
+    ----------
+    sns_client : boto3.Client
+        boto3 client for AWS SNS
+    input : dict
+        Input for `SNS.create_platform_application()`
+
+    Returns
+    -------
+    str
+        SNS Platform Application ARN
+
+    Raises
+    ------
+    ClientError
+        Request error
+    ResponseStatusError
+        Request was not successful
+    BaseException
+        Unknown error
+    """
+    try:
+        response = sns_client.create_platform_application(input)
+        raise_for_status(response)
+    except ClientError as e:
+        logging.error(f"Error with boto3 request: {e}")
+        raise e
+    except ResponseStatusError as e:
+        logging.error('[status_code] Error')
+        raise e
+    except BaseException as e:
+        logging.error("Unknown error while creating platform application: "
+                      + e.response['Error']['Message'])
+        raise e
+
+    return response.get('PlatformApplicationArn')
+
+
+def get_platform_application(client, platform: str, name: str,
                              next_token: Optional[str] = None) -> str:
     """Return ARN of AWS SNS platform application
 
@@ -107,7 +240,7 @@ def get_platform_application(client, platform: str, name: str,
         return get_platform_application(client, platform, name, token)
 
 
-def get_topic_arn(client, stack_name: str, 
+def get_topic_arn(client, stack_name: str,
                   next_token: Optional[str] = None) -> str:
     """Return ARN of AWS SNS topic used for APNs notifications in Adequate AWS
     SAM stack
@@ -161,7 +294,7 @@ def get_topic_arn(client, stack_name: str,
         return get_topic_arn(client, stack_name, token)
 
 
-def check_sns_policy_exists(client, role_name: str, policy_name: str, 
+def check_sns_policy_exists(client, role_name: str, policy_name: str,
                             next_token: Optional[str] = None) -> bool:
     """Check if inline policy `policy_name` already exists for IAM role
     `role_name`
@@ -209,7 +342,7 @@ def check_sns_policy_exists(client, role_name: str, policy_name: str,
         return False
 
 
-def add_sns_policy(client, role_name: str, platform_application_arn: str, 
+def add_sns_policy(client, role_name: str, platform_application_arn: str,
                    topic_arn: str) -> dict:
     """Add inline policy to IAM role enabling access to an SNS platform
     application and SNS topic
@@ -315,7 +448,7 @@ def configure_for_branch(session, sam_base_name: str, env_name: str,
     iam = session.client('iam')
 
     # Verify inline policy does not already exist
-    policy_exists = check_sns_policy_exists(iam, role_name, 
+    policy_exists = check_sns_policy_exists(iam, role_name,
                                             Config.SNS_POLICY_NAME)
     if policy_exists:
         logging.info(
@@ -338,10 +471,37 @@ def configure_for_branch(session, sam_base_name: str, env_name: str,
 # -----------------------------------------------------------------------------
 # CLI
 
+def reverse_dns(value: str) -> str:
+    """Validate `--org` argument
+
+    Parameters
+    ----------
+    value : str
+        Passed by the ArgumentParser object
+
+    Returns
+    -------
+    str
+        Returns the value back to the ArgumentParser object
+
+    Raises
+    ------
+    argparse.ArgumentTypeError
+        The passed argument was not in reverse DNS notation
+    """
+    # https://en.wikipedia-on-ipfs.org/wiki/Reverse_domain_name_notation.html
+    regex = '^[A-Za-z]{2,6}((?!-)\.[A-Za-z0-9-]{1,63}(?<!-))+$'
+    p = re.compile(regex)
+    if not re.match(p, value):
+        raise argparse.ArgumentTypeError(
+            f"'{value}' not in reverse DNS notation")
+    return value
+
+
 def init_argparse() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTIONS] [TABLE]",
-        description="Configure GSI for Query.dealQuery."
+        description="Create and configure SNS Platform Applications for APNs."
     )
     parser.add_argument(
         "-v", "--version", action="version",
@@ -355,14 +515,32 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument('--region', default=None,
                         help='AWS region name for resources')
 
-    parser.add_argument('--verbose', action='store_true', 
+    parser.add_argument('--org', default='com.mgacy',
+                        help='Organization identifier for iOS client app',
+                        type=reverse_dns)
+
+    parser.add_argument('--server', default='both',
+                        help='APNs server to use',
+                        choices=['dev', 'prod', 'both'])
+
+    parser.add_argument('--verbose', action='store_true',
                         help='Increase output verbosity')
+
+    # TODO: implement
+    # parser.add_argument('--client', default=None,
+    #                     help='Path to root client directory')
+
     return parser
 
 
 def main():
     parser = init_argparse()
     args = parser.parse_args()
+
+    # if args.path:
+    #     path = Path(args.path)
+    # else:
+    path = Path(__file__).parent / "../../Adequate"
 
     if args.verbose:
         log_level = logging.DEBUG
@@ -378,29 +556,33 @@ def main():
     sns = session.client('sns')
 
     # Branch: dev
-    logging.info(
-        f"Configuring unauth role for '{Config.DEV_BRANCH_SUFFIX}' "
-        "environment...")
-    apns_sandbox = get_platform_application(
-        sns, DEV_SNS_PLATFORM, DEV_SNS_APP_NAME)
+    if args.server in ['dev', 'both']:
+        logging.info(
+            f"Configuring unauth role for '{Config.DEV_BRANCH_SUFFIX}' "
+            "environment...")
+        (pkey, pem) = get_apns_profile(path, 'dev', args.org)
+        dev_input = create_platform_app_input('dev', pkey, pem)
+        apns_sandbox = create_platform_application(sns, dev_input)
 
-    # try:
-    dev_resp = configure_for_branch(session, args.base_name, 
-                                    Config.DEV_BRANCH_SUFFIX,
-                                    apns_sandbox)
-    # except BaseException as e:
+        # try:
+        dev_resp = configure_for_branch(session, args.base_name,
+                                        Config.DEV_BRANCH_SUFFIX,
+                                        apns_sandbox)
+        # except BaseException as e:
 
     # Branch: master
-    logging.info(
-        f"Configuring unauth role for '{Config.MASTER_BRANCH_SUFFIX}'"
-        "environment...")
-    apns = get_platform_application(
-        sns, MASTER_SNS_PLATFORM, MASTER_SNS_APP_NAME)
+    if args.server in ['prod', 'both']:
+        logging.info(
+            f"Configuring unauth role for '{Config.MASTER_BRANCH_SUFFIX}'"
+            "environment...")
+        (pkey, pem) = get_apns_profile(path, 'prod', args.org)
+        prod_input = create_platform_app_input('prod', pkey, pem)
+        apns = create_platform_application(sns, prod_input)
 
-    # try:
-    prod_resp = configure_for_branch(session, args.base_name,
-                                     Config.MASTER_BRANCH_SUFFIX, apns)
-    # except BaseException as e:
+        # try:
+        prod_resp = configure_for_branch(session, args.base_name,
+                                        Config.MASTER_BRANCH_SUFFIX, apns)
+        # except BaseException as e:
 
 
 if __name__ == '__main__':

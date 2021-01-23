@@ -6,10 +6,10 @@ class Config:
     DEFAULT_BASE_STACK_NAME = 'adequate-sam'
 
     # Relative path of amplify configuration file
-    TEAM_PROVIDER_INFO = '../amplify/team-provider-info.json'
+    TEAM_PROVIDER_INFO = 'amplify/team-provider-info.json'
 
     # Relative path of amplify environment configuration file
-    # AMPLIFY_META = '../amplify/#current-cloud-backend/amplify-meta.json'
+    # AMPLIFY_META = 'amplify/#current-cloud-backend/amplify-meta.json'
 
     # Name of Amplify development environment and suffix for corresponding
     # CloudFormation stack
@@ -25,10 +25,10 @@ class Config:
 
     # Name of GSI
     RECENT_INDEX_NAME = 'isRecent-createdAt-index'
-    
+
     # TODO: use different values for master / develop?
     DEFAULT_READ_UNITS = 3  # 5?
-    
+
     DEFAULT_WRITE_UNITS = 1  # 2?
 
     # BILLING_MODES = [
