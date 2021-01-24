@@ -1,6 +1,10 @@
 .SHELLFLAGS := -eu -o pipefail -c
-MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
+
+ifneq (,$(wildcard ./.env))
+	include .env
+	export
+endif
 
 # Variables
 BASE_NAME ?= adequate-sam
@@ -21,32 +25,24 @@ ifndef STACK_NAME
 STACK_NAME = $(BASE_NAME)-$(AWS_BRANCH)
 endif
 
-ifndef DEPLOYMENT_BUCKET_NAME
-DEPLOYMENT_BUCKET_NAME = $(BASE_NAME)-$(AWS_BRANCH)-src-$(AWS_REGION)
-endif
-
 
 help:
 	$(info ${HELP_MESSAGE})
 	@exit 0
 
-dev: ##=> Install dependencies for SAM app
-	cd sam-app && \
-		make dev
-
-init: ##=> Create KMS customer master key
-	python3 tools/configure_kms.py
-
-create-bucket: ##=> Create S3 bucket
-	$(info [*] Creating S3 bucket at s3://$(DEPLOYMENT_BUCKET_NAME)")
-	@aws s3 mb s3://$(DEPLOYMENT_BUCKET_NAME) --region $(AWS_REGION)
-
 deploy: ##=> Deploy services
 	$(info [*] Building and deploying adequate service...)
+	MEH_API_KEY=$(shell aws kms encrypt \
+		--region $(AWS_REGION) \
+		--key-id $(KMS_KEY_ID) \
+		--plaintext $(PLAIN_API_KEY) \
+		--encryption-context LambdaFunctionName=$(BASE_NAME)-dealCheck-$(AWS_BRANCH) \
+		--cli-binary-format raw-in-base64-out \
+		--output text \
+		--query CiphertextBlob); \
 	cd sam-app && \
-		sam build && \
+		pipenv run sam build && \
 		sam deploy \
-			--s3-bucket $(DEPLOYMENT_BUCKET_NAME) \
 			--region $(AWS_REGION) \
 			--stack-name $(STACK_NAME) \
 			--capabilities CAPABILITY_IAM \
@@ -54,17 +50,64 @@ deploy: ##=> Deploy services
 				BaseName=$(BASE_NAME) \
 				Environment=$(AWS_BRANCH) \
 				KmsKeyId=$(KMS_KEY_ID) \
-				MehApiKey=$(MEH_API_KEY) \
+				MehApiKey=$${MEH_API_KEY} \
 				ApnsCategory=$(APNS_CATEGORY) \
 				GraphQlId=$(GRAPHQL_API_ID) \
 				GraphQlEndpoint=$(GRAPHQL_ENDPOINT) \
 				AlarmEmailParam=$(ALARM_EMAIL)
 
-configure-gsi:
-	$(info [*] Configuring GSI for Query.dealHistory in Table 'Deal-$(GRAPHQL_API_ID)-$(AWS_BRANCH)')
-	python3 tools/configure_index.py Deal-$(GRAPHQL_API_ID)-$(AWS_BRANCH)
+deploy.guided: ##=> Deploy services
+	$(info [*] Building and deploying adequate service...)
+	MEH_API_KEY=$(shell aws kms encrypt \
+		--region $(AWS_REGION) \
+		--key-id $(KMS_KEY_ID) \
+		--plaintext $(PLAIN_API_KEY) \
+		--encryption-context LambdaFunctionName=$(BASE_NAME)-dealCheck-$(AWS_BRANCH) \
+		--cli-binary-format raw-in-base64-out \
+		--output text \
+		--query CiphertextBlob); \
+	cd sam-app && \
+		pipenv run sam build && \
+		sam deploy \
+			--guided \
+			--region $(AWS_REGION) \
+			--stack-name $(STACK_NAME) \
+			--capabilities CAPABILITY_IAM \
+			--parameter-overrides \
+				BaseName=$(BASE_NAME) \
+				Environment=$(AWS_BRANCH) \
+				KmsKeyId=$(KMS_KEY_ID) \
+				MehApiKey=$${MEH_API_KEY} \
+				ApnsCategory=$(APNS_CATEGORY) \
+				GraphQlId=$(GRAPHQL_API_ID) \
+				GraphQlEndpoint=$(GRAPHQL_ENDPOINT) \
+				AlarmEmailParam=$(ALARM_EMAIL)
 
-.PHONY: help init create-bucket deploy configure-gsi
+dev: ##=> Install dependencies for SAM app
+	cd sam-app && \
+		make dev
+
+configure.kms: ##=> Create KMS customer master key
+	$(info [*] Creating KMS master key ...)
+	source sam-app/.venv/bin/activate && \
+		python tools/configure_kms.py
+
+configure.gsi: ##=> Create DynamoDB GSI for AppSync Query.dealHistory
+	$(info [*] Configuring GSI for Query.dealHistory in Table 'Deal-$(GRAPHQL_API_ID)-$(AWS_BRANCH)')
+	source sam-app/.venv/bin/activate && \
+		python tools/configure_index.py Deal-$(GRAPHQL_API_ID)-$(AWS_BRANCH)
+
+init: ##=> Install SAM dependencies and configure additional components
+	$(MAKE) dev
+	$(MAKE) configure.kms
+	$(MAKE) configure.gsi
+
+notifications: ##=> Create SNS Platform Applications
+	$(info [*] Creating SNS Platform Applications...)
+	source sam-app/.venv/bin/activate && \
+		python tools/configure_sns.py
+
+.PHONY: help init deploy dev configure.kms configure.gsi init notifications
 
 #############
 #  Helpers  #
@@ -78,8 +121,6 @@ define HELP_MESSAGE
 		Description: Feature branch name used as part of stacks name
 	STACK_NAME: "adequate-sam-<branch>"
 		Description: Stack Name already deployed; used for dirty/individual deployment
-	DEPLOYMENT_BUCKET_NAME: "a_valid_bucket_name"
-		Description: S3 Bucket name used for deployment artifacts
 	GRAPHQL_API_ID: "hnxochcn4vfdbgp6zaopgcxk2a"
 		Description: AppSync GraphQL ID already deployed
 	GRAPHQL_ENDPOINT: "https://<api_id>.appsync-api.<region>.amazonaws.com/graphql"
@@ -98,9 +139,12 @@ define HELP_MESSAGE
 	...::: Create S3 bucket :::...
 	$ make create-bucket
 
-	...::: Deploy all SAM based services :::...
+	...::: Deploy all SAM-based services :::...
 	$ make deploy
 
-	...::: Configure GSI for Query.dealHistory :::...
-	$ make configure-gsi
+	...::: Install SAM dependencies and configure additional components :::...
+	$ make init
+
+	...::: Create SNS Platform Applications of APNs :::...
+	$ make notifications
 endef
