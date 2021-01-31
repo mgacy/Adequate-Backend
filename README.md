@@ -75,7 +75,7 @@ GraphQL backend for [Adequate](https://github.com/mgacy/Adequate), a free and op
    fastlane pem -a your.Organization.Adequate -u username --development [-p <password for p12 file>]
    ```
 
-3. Create SNS Platform application:
+4. Create SNS Platform application:
 
    ```bash
    make notifications
@@ -110,11 +110,11 @@ If you forked this project, you can configure a development environment as follo
 5. Create `dev` branch in Git:
 
    ```bash
-   $ git add .
-   $ git commit -m "Creation of a dev amplify environment"
-   $ git push -u origin master
-   $ git checkout -b dev
-   $ git push -u origin dev
+   git add .
+   git commit -m "Create a dev amplify environment"
+   git push -u origin master
+   git checkout -b dev
+   git push -u origin dev
    ```
 
 ## Roadmap
