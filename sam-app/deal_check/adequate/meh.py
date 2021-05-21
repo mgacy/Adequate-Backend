@@ -86,6 +86,23 @@ def _fix_empty_array(item, key, nullable=True):
         item[key] = def_value
     return item
 
+def _remove_duplicates(items):
+    """Return `items`, filtering any duplicate items.
+
+    Disussion: https://stackoverflow.com/a/7961390/4472195
+    NOTE: this requires Python 3.7+ in order to preserve order
+
+    Parameters
+    ----------
+    items : list
+        [description]
+
+    Returns
+    -------
+    list
+        Updated `items`
+    """
+    return list(dict.fromkeys(items))
 
 def _parse_creation_date(response):
     """Parse or generate creation date from response.
@@ -202,5 +219,8 @@ def _parse_response(response):
     # Handle error when `Item.attributes` is `[]`
     deal['items'] = [_fix_empty_array(i, 'attributes', nullable=True)
                      for i in deal.get('items', [])]
+
+    # Handle error from duplicate image URLs
+    deal['photos'] = _remove_duplicates(deal['photos'])
 
     return deal
