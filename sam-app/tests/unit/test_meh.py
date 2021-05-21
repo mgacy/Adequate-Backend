@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import unittest
 # from deal_check.adequate import meh
-from deal_check.adequate.meh import _fix_empty_array, _parse_creation_date, _parse_model_numbers, _parse_response
+from deal_check.adequate.meh import _fix_empty_array, _parse_creation_date, _parse_model_numbers, _parse_response, _remove_duplicates
 
 
 # NOTE: to run, use following from `/lambdaTest`
@@ -232,3 +232,10 @@ class MehTestCase(unittest.TestCase):
         self.assertIsNotNone(result.get('createdAt'))
         # self.assertIsNotNone(result.get('model_numbers'))
         self.assertIsNotNone(result.get('launchStatus'))
+
+    def test_remove_duplicates(self):
+        expected = ['1', '2', '3', '4', '5']
+        photos = ['1', '2', '3', '2', '4', '1', '5']
+
+        result = _remove_duplicates(photos)
+        self.assertEqual(result, expected)
