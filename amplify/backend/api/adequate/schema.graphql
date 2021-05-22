@@ -271,5 +271,4 @@ input DealHistoryFilterInput {
 type Query {
   dealHistory(filter: DealHistoryFilterInput, limit: Int, nextToken: String): DealHistoryConnection
     @aws_iam
-    # @auth(rules: [ { allow: public, provider: iam } ])
 }
