@@ -1,5 +1,19 @@
 import json
 import unittest
+# Fix imports
+import os, sys
+from pathlib import Path
+base_path = Path(__file__).parent.parent.parent
+DEAL_CHECK = (base_path / 'deal_check').resolve()
+sys.path.insert(0, str(DEAL_CHECK))
+
+# Environment Vars
+os.environ['API_ENDPOINT'] = ''
+os.environ['MEH_API_KEY'] = ''
+os.environ['TOPIC_ARN'] = ''
+os.environ['BUCKET_NAME'] = ''
+os.environ['AWS_LAMBDA_FUNCTION_NAME'] = ''
+
 from deal_check import app
 
 
