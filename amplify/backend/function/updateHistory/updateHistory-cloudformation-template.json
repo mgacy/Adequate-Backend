@@ -82,8 +82,8 @@
 				"Layers": [],
 				"Timeout": "25",
 				"Code": {
-					"S3Bucket": "amplify-adequate-backend-master-194529-deployment",
-					"S3Key": "amplify-builds/updateHistory-6e2b594d413036644c5a-build.zip"
+					"S3Bucket": "amplify-adequate-backend-dev-123425-deployment",
+					"S3Key": "amplify-builds/updateHistory-50634e6254615a4c6f4c-build.zip"
 				}
 			}
 		},
